@@ -1,1 +1,4 @@
-export const songs = [{title:"Manjha",film:"Kai Po Che!",year:"2013"},{title:"Gulabi",film:"Shuddh Desi Romance",year:"2013"},{title:"Chaar Kadam",film:"PK",year:"2014"},{title:"Kaun Tujhe",film:"M.S. Dhoni: The Untold Story",year:"2016"},{title:"Qaafirana",film:"Kedarnath",year:"2018"},{title:"Khairiyat",film:"Chhichhore",year:"2019"},{title:"Taare Ginn",film:"Dil Bechara",year:"2020"}];
+export const songs = [
+  { title: "Khairiyat", film: "Chhichhore", year: "2019", youtubeId: "9-AKLAfpjrI", source: "T-Series" },
+  { title: "Taare Ginn", film: "Dil Bechara", year: "2020", youtubeId: "iktvQ_Nl11M", source: "SonyMusicIndiaVEVO" },
+];
