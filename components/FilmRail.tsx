@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/Icons";
-import { films, tmdbImage } from "@/data/films";
+import { films, filmLink, tmdbImage } from "@/data/films";
 
 export function FilmRail() {
   const rail = useRef<HTMLUListElement>(null);
@@ -44,7 +44,13 @@ export function FilmRail() {
       >
         {films.map((film) => (
           <li key={film.tmdbId} className="w-40 shrink-0 snap-start sm:w-44">
-            <article className="group">
+            <a
+              href={filmLink(film)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block"
+              title={`${film.title} on ${film.imdbId ? "IMDb" : "TMDB"}`}
+            >
               <div className="relative aspect-[2/3] overflow-hidden rounded-sm border border-[var(--rule)] bg-[var(--card)] transition duration-500 group-hover:border-[var(--gold)]">
                 {film.posterPath ? (
                   <Image
@@ -60,12 +66,19 @@ export function FilmRail() {
                   </div>
                 )}
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(4,6,12,.85),transparent_45%)] opacity-0 transition group-hover:opacity-100" />
+                {/* Says where the card goes before you commit to the click. */}
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-1.5 p-3 text-[10px] font-bold tracking-[.14em] text-[var(--gold)] opacity-0 transition group-hover:opacity-100">
+                  {film.imdbId ? "IMDb" : "TMDB"}
+                  <Icon name="arrow" className="h-3 w-3" />
+                </span>
               </div>
-              <p className="display mt-3 text-lg leading-tight">{film.title}</p>
+              <p className="display mt-3 text-lg leading-tight transition group-hover:text-[var(--gold)]">
+                {film.title}
+              </p>
               <p className="mt-1 text-[11px] text-[var(--paper-40)]">
                 {film.year} &middot; as {film.character}
               </p>
-            </article>
+            </a>
           </li>
         ))}
       </ul>

@@ -127,6 +127,23 @@ a { color: inherit; text-decoration: none; }
   animation-delay: var(--delay, 0s);
 }
 
+/* Orbit: the ring turns, the portrait at its centre turns the opposite way
+   by the same amount so it stays facing the viewer while the posters sweep
+   around it. Both live in one preserve-3d context, so a poster on the near
+   side genuinely occludes him and one on the far side is occluded. */
+@keyframes orbit-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+
+@keyframes orbit-counter {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(-360deg); }
+}
+
+.orbit-ring    { animation: orbit-spin var(--orbit-dur, 46s) linear infinite; }
+.orbit-counter { animation: orbit-counter var(--orbit-dur, 46s) linear infinite; }
+
 /* Poster wall: columns drift in opposite directions. Each column holds its
    posters twice, so translating by exactly half its height loops seamlessly. */
 @keyframes drift-up {
@@ -220,6 +237,8 @@ button:disabled {
      times a second instead of stopping them. Halt them outright. */
   .drift-up,
   .drift-down,
+  .orbit-ring,
+  .orbit-counter,
   .star,
   .nudge {
     animation: none !important;

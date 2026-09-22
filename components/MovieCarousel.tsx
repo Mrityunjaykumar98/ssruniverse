@@ -1,11 +1,11 @@
 import { FilmRail } from "@/components/FilmRail";
-import { PosterWall } from "@/components/PosterWall";
+import { PosterOrbit } from "@/components/PosterOrbit";
 
 export function MovieCarousel() {
   return (
     <section id="actor" className="section">
       <div className="section-inner grid items-start gap-10 lg:grid-cols-[minmax(0,.7fr)_minmax(0,1.3fr)] lg:gap-14">
-        <PosterWall />
+        <PosterOrbit />
 
         <div>
           <p className="eyebrow rule-lead">01 / Filmography</p>
