@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "images": "node scripts/fetch-images.mjs",
-    "films": "node --env-file=.env.local scripts/fetch-films.mjs"
+    "films": "node --env-file=.env.local scripts/fetch-films.mjs",
+    "songs": "node scripts/fetch-songs.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.4.0",

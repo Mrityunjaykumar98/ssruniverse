@@ -168,6 +168,19 @@ a { color: inherit; text-decoration: none; }
   padding: 0.5rem 0.75rem;
 }
 
+/* Tailwind v4's preflight resets buttons to cursor:default to match the
+   browser default. Every button here is a real control, so restore the
+   pointer rather than repeating a utility on each one. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Keyboard focus that reads against a dark ground. */
 :focus-visible {
   outline: 2px solid var(--gold);

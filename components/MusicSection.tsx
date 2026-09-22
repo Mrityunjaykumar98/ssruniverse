@@ -1,33 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/Icons";
 import { films, tmdbImage } from "@/data/films";
-import { songs, songArtwork } from "@/data/songs";
+import { songs, songArtwork, type Song } from "@/data/songs";
 
 /**
  * Prefer the film's TMDB backdrop for artwork: YouTube's own thumbnails are
- * label promos with view-count graphics burned into them. Falls back to the
- * video thumbnail if a track ever has no matching film.
+ * label promos with view counts burned into them. Falls back to the video
+ * thumbnail when a track has no matching film.
  */
-function artworkFor(film: string, youtubeId: string) {
-  const match = films.find((f) => f.title === film);
+function artworkFor(song: Song) {
+  const match = films.find((f) => f.title === song.film);
   return match?.backdropPath
     ? tmdbImage(match.backdropPath, "w780")
-    : songArtwork(youtubeId);
+    : songArtwork(song.youtubeId);
 }
 
 export function MusicSection() {
-  const [index, setIndex] = useState(0);
-  /* Nothing autoplays on load — the embed only mounts once someone presses play. */
-  const [playing, setPlaying] = useState(false);
-  const song = songs[index];
+  /* Films in release order, limited to those that actually have tracks. */
+  const filmOrder = useMemo(
+    () => films.map((f) => f.title).filter((t) => songs.some((s) => s.film === t)),
+    [],
+  );
+  const [film, setFilm] = useState(filmOrder[0] ?? "");
+  const tracks = useMemo(() => songs.filter((s) => s.film === film), [film]);
 
-  const select = (next: number) => {
-    setIndex((next + songs.length) % songs.length);
+  const [index, setIndex] = useState(0);
+  /* Nothing autoplays on load — the embed mounts only once play is pressed. */
+  const [playing, setPlaying] = useState(false);
+  const song = tracks[index] ?? tracks[0];
+
+  const pickFilm = (title: string) => {
+    setFilm(title);
+    setIndex(0);
     setPlaying(false);
   };
+  const select = (next: number) => {
+    setIndex((next + tracks.length) % tracks.length);
+    setPlaying(false);
+  };
+
+  if (!song) return null;
 
   return (
     <section id="music" className="section border-y border-[var(--rule)] bg-[var(--ink-raised)]">
@@ -38,11 +53,40 @@ export function MusicSection() {
           His songs, his emotions.
         </p>
         <p className="section-copy mt-5">
-          Whether it was love, hope, heartbreak or peace, his songs always found a way
-          to reach people. Each one plays here from its rights holder&rsquo;s own channel.
+          Every soundtrack he was part of &mdash; {songs.length} songs across{" "}
+          {filmOrder.length} films. Each one plays from its rights holder&rsquo;s own channel.
         </p>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+        {/* Film selector */}
+        <div
+          className="rail mt-10 flex gap-2 overflow-x-auto pb-2"
+          role="tablist"
+          aria-label="Choose a film"
+        >
+          {filmOrder.map((title) => {
+            const active = title === film;
+            const count = songs.filter((s) => s.film === title).length;
+            return (
+              <button
+                key={title}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => pickFilm(title)}
+                className={`shrink-0 rounded-full border px-4 py-2 text-[11px] tracking-[.08em] transition ${
+                  active
+                    ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                    : "border-[var(--rule-strong)] text-[var(--paper-55)] hover:border-[var(--gold)]/60 hover:text-[var(--paper)]"
+                }`}
+              >
+                {title}
+                <span className="ml-2 opacity-50">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
           {/* Player */}
           <div className="rounded-sm border border-[var(--rule)] bg-[var(--card)]/60 p-4 sm:p-5">
             <div className="relative aspect-video overflow-hidden rounded-sm bg-black">
@@ -58,7 +102,7 @@ export function MusicSection() {
               ) : (
                 <>
                   <Image
-                    src={artworkFor(song.film, song.youtubeId)}
+                    src={artworkFor(song)}
                     alt=""
                     fill
                     sizes="(max-width: 1024px) 100vw, 45vw"
@@ -85,7 +129,7 @@ export function MusicSection() {
               <div className="min-w-0">
                 <p className="display truncate text-2xl">{song.title}</p>
                 <p className="mt-1 truncate text-xs text-[var(--paper-40)]">
-                  {song.film} &middot; {song.singers}
+                  {song.singers || song.film}
                 </p>
               </div>
               <span className="shrink-0 text-[11px] text-[var(--paper-40)]">{song.year}</span>
@@ -106,7 +150,9 @@ export function MusicSection() {
                 className="grid h-9 w-9 place-items-center rounded-full border border-[var(--gold)] text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-[var(--ink)]"
               >
                 <span className="sr-only">{playing ? "Stop" : "Play"}</span>
-                <span aria-hidden className="text-[11px]">{playing ? "■" : "▶"}</span>
+                <span aria-hidden className="text-[11px]">
+                  {playing ? "■" : "▶"}
+                </span>
               </button>
               <button
                 type="button"
@@ -117,14 +163,14 @@ export function MusicSection() {
                 <Icon name="arrow" className="h-4 w-4" />
               </button>
               <span className="ml-auto text-[10px] tracking-[.14em] text-[var(--paper-40)]">
-                {String(index + 1).padStart(2, "0")} / {String(songs.length).padStart(2, "0")}
+                {String(index + 1).padStart(2, "0")} / {String(tracks.length).padStart(2, "0")}
               </span>
             </div>
           </div>
 
-          {/* Track list */}
+          {/* Tracks for the selected film */}
           <ol className="border-t border-[var(--rule)]">
-            {songs.map((track, i) => {
+            {tracks.map((track, i) => {
               const active = i === index;
               return (
                 <li key={track.youtubeId}>
@@ -136,7 +182,9 @@ export function MusicSection() {
                       active ? "bg-[var(--gold)]/[.07]" : "hover:bg-[var(--paper)]/[.03]"
                     }`}
                   >
-                    <span className={`w-5 text-[10px] ${active ? "text-[var(--gold)]" : "text-[var(--paper-40)]"}`}>
+                    <span
+                      className={`w-5 text-[10px] ${active ? "text-[var(--gold)]" : "text-[var(--paper-40)]"}`}
+                    >
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -144,7 +192,7 @@ export function MusicSection() {
                         {track.title}
                       </span>
                       <span className="block truncate text-[10px] text-[var(--paper-40)]">
-                        {track.film} &middot; {track.source}
+                        {track.singers || track.film} &middot; {track.source}
                       </span>
                     </span>
                     <span className="shrink-0 text-[10px] text-[var(--paper-40)]">{track.year}</span>

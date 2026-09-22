@@ -17,7 +17,9 @@ All photography is freely licensed and fetched from Wikimedia Commons by
 `scripts/fetch-images.mjs`:
 
 ```bash
-pnpm images
+pnpm images   # photography from Wikimedia Commons
+pnpm films    # poster art and film metadata from TMDB (needs .env.local)
+pnpm songs    # soundtracks, resolved to official YouTube uploads
 ```
 
 The script downloads display-sized renditions into `public/images/`, inlines a
