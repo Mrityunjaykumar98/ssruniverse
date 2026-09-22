@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "images": "node scripts/fetch-images.mjs",
+    "films": "node --env-file=.env.local scripts/fetch-films.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.4.0",
