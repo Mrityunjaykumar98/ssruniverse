@@ -1,4 +1,3 @@
-import { CategoryNav } from "@/components/CategoryNav";
 import { DreamerSection } from "@/components/DreamerSection";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
@@ -18,7 +17,6 @@ export default function Home() {
       <SiteHeader />
       <main>
         <Hero />
-        <CategoryNav />
         <MovieCarousel />
         <MusicSection />
         <MemoriesSection />

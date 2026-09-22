@@ -12,27 +12,6 @@ const base = {
 };
 
 export const icons = {
-  clapper: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8Z" />
-      <path d="m3 11 1-4 17 1-1 3" />
-      <path d="m8 7.3 1.6 3.4M13 7.6l1.6 3.4" />
-    </svg>
-  ),
-  note: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <path d="M9 18V6l10-2v12" />
-      <circle cx="6.5" cy="18" r="2.5" />
-      <circle cx="16.5" cy="16" r="2.5" />
-    </svg>
-  ),
-  smile: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" />
-      <path d="M9 9.5h.01M15 9.5h.01" />
-    </svg>
-  ),
   dance: (p: IconProps) => (
     <svg {...base} {...p} aria-hidden>
       <circle cx="13" cy="4.5" r="1.8" />
@@ -55,12 +34,6 @@ export const icons = {
   heart: (p: IconProps) => (
     <svg {...base} {...p} aria-hidden>
       <path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z" />
-    </svg>
-  ),
-  search: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4.5 4.5" />
     </svg>
   ),
   atom: (p: IconProps) => (
