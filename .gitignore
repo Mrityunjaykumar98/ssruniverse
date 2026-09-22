@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# env: the template is committed so a fresh clone knows what is required,
+# while every real env file stays local (rule above).
+!.env.example
+
+# editors
+.idea/
+.vscode/
+*.swp
+
+# os
+Thumbs.db
+desktop.ini
+
+# scratch files from local debugging
+*.tmp
+*.tmp.*
+*.local.json
+/screenshots/

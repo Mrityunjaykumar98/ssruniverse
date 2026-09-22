@@ -1,2 +1,191 @@
-@import "tailwindcss";
-:root{--ink:#070a12;--paper:#f6f2e9;--gold:#c9a664}*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--ink)}body{margin:0;background:var(--ink);color:var(--paper);font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}a{color:inherit;text-decoration:none}.section{padding:5.5rem 1.25rem;position:relative}.section-inner{max-width:1120px;margin:auto}.eyebrow{color:var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase}.display{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.045em}.section-title{margin:.65rem 0 .5rem;font-size:clamp(2.5rem,7vw,5.5rem);line-height:.9}.section-copy{color:rgba(246,242,233,.62);font-size:.96rem;line-height:1.65;max-width:34rem}.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:999px;opacity:.7}.star:nth-child(2n){opacity:.35;transform:scale(.6)}.star:nth-child(3n){background:var(--gold)}.skip-link{position:absolute;left:-9999px}.skip-link:focus{left:1rem;top:1rem;z-index:50;background:var(--paper);color:var(--ink);padding:.5rem}@media(min-width:768px){.section{padding:8rem 2rem}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* source(none) disables Tailwind's automatic file detection, which would
+   otherwise scan public/ and derive junk utilities from binary image data.
+   Class names must live in app/ or components/ to be picked up. */
+@import "tailwindcss" source(none);
+@source "../app";
+@source "../components";
+
+/* ============================================================
+   Design tokens — sourced from the approved comp.
+   Surfaces run from near-black to a lifted navy so sections can
+   be stacked without borders doing all the separating work.
+   ============================================================ */
+:root {
+  /* Surfaces */
+  --ink: #070a12;
+  --ink-raised: #0a0e19;
+  --navy: #0b1020;
+  --navy-lift: #111827;
+  --card: #131a2b;
+
+  /* Brand */
+  --gold: #c9a664;
+  --gold-bright: #e0bd7d;
+  --gold-dim: #8a7245;
+
+  /* Text */
+  --paper: #f6f2e9;
+  --paper-70: rgba(246, 242, 233, 0.7);
+  --paper-55: rgba(246, 242, 233, 0.55);
+  --paper-40: rgba(246, 242, 233, 0.4);
+
+  /* Lines */
+  --rule: rgba(246, 242, 233, 0.12);
+  --rule-strong: rgba(246, 242, 233, 0.22);
+
+  /* Type scale */
+  --step-eyebrow: 0.68rem;
+  --step-title: clamp(2.5rem, 7vw, 5.5rem);
+
+  /* Rhythm */
+  --gutter: 1.25rem;
+  --shell: 1200px;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ink);
+  /* Next 16 no longer overrides scroll-behavior on navigation unless
+     this attribute is present — see layout.tsx. */
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   Type primitives
+   ============================================================ */
+.display {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.045em;
+}
+
+.script {
+  font-family: var(--font-script), "Segoe Script", cursive;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-size: var(--step-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Section shell
+   ============================================================ */
+.section { padding: 5.5rem var(--gutter); position: relative; }
+.section-inner { max-width: var(--shell); margin: auto; }
+.section-title { margin: 0.65rem 0 0.5rem; font-size: var(--step-title); line-height: 0.9; }
+.section-copy {
+  color: var(--paper-70);
+  font-size: 0.96rem;
+  line-height: 1.65;
+  max-width: 34rem;
+}
+
+/* A short gold rule that sits to the left of a section heading. */
+.rule-lead::before {
+  content: "";
+  display: inline-block;
+  width: 2.25rem;
+  height: 1px;
+  margin-right: 1rem;
+  vertical-align: middle;
+  background: var(--gold);
+}
+
+/* ============================================================
+   Entrance motion
+
+   Driven by CSS rather than JS so the hero is legible before (and
+   without) hydration. Elements stagger via --delay.
+   ============================================================ */
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.rise {
+  animation: fade-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.85; }
+}
+
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(5px); }
+}
+
+.nudge { animation: nudge 1.8s ease-in-out infinite; }
+
+/* ============================================================
+   Starfield
+   ============================================================ */
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 999px;
+  opacity: 0.7;
+  animation: twinkle var(--dur, 4s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+.star:nth-child(2n) { opacity: 0.35; transform: scale(0.6); }
+.star:nth-child(3n) { background: var(--gold); }
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.5rem 0.75rem;
+}
+
+/* Keyboard focus that reads against a dark ground. */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Horizontal rails: hide the bar, keep the scrolling. */
+.rail { scrollbar-width: none; -ms-overflow-style: none; }
+.rail::-webkit-scrollbar { display: none; }
+
+@media (min-width: 768px) {
+  .section { padding: 8rem 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
