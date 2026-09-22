@@ -4,6 +4,7 @@
 
 export type Film = {
   tmdbId: number;
+  imdbId: string | null;
   title: string;
   year: string;
   character: string;
@@ -12,6 +13,12 @@ export type Film = {
   overview: string;
 };
 
+/** Where a film card sends you: IMDb when known, TMDB otherwise. */
+export const filmLink = (film: Film) =>
+  film.imdbId
+    ? `https://www.imdb.com/title/${film.imdbId}/`
+    : `https://www.themoviedb.org/movie/${film.tmdbId}`;
+
 /** TMDB image CDN. Widths must be ones TMDB actually serves. */
 export const tmdbImage = (path: string, width: "w342" | "w500" | "w780" | "original") =>
   `https://image.tmdb.org/t/p/${width}${path}`;
@@ -19,6 +26,7 @@ export const tmdbImage = (path: string, width: "w342" | "w500" | "w780" | "origi
 export const films: Film[] = [
   {
     "tmdbId": 168245,
+    "imdbId": "tt2213054",
     "title": "Kai Po Che!",
     "year": "2013",
     "character": "Ishaan Bhatt",
@@ -28,6 +36,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 209410,
+    "imdbId": "tt2988272",
     "title": "Shuddh Desi Romance",
     "year": "2013",
     "character": "Raghu Ram Sitaram",
@@ -37,6 +46,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 297222,
+    "imdbId": "tt2338151",
     "title": "PK",
     "year": "2014",
     "character": "Sarfaraz Yousuf",
@@ -46,6 +56,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 320295,
+    "imdbId": "tt3447364",
     "title": "Detective Byomkesh Bakshy!",
     "year": "2015",
     "character": "Byomkesh Bakshy",
@@ -55,6 +66,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 388333,
+    "imdbId": "tt4169250",
     "title": "M.S. Dhoni: The Untold Story",
     "year": "2016",
     "character": "Mahendra Singh Dhoni",
@@ -64,6 +76,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 456562,
+    "imdbId": "tt5542802",
     "title": "Raabta",
     "year": "2017",
     "character": "Shiv / Jilaan",
@@ -73,6 +86,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 465656,
+    "imdbId": "tt7027278",
     "title": "Kedarnath",
     "year": "2018",
     "character": "Mansoor Khan",
@@ -82,6 +96,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 535144,
+    "imdbId": "tt8108200",
     "title": "Sonchiriya",
     "year": "2019",
     "character": "Lakhna",
@@ -91,6 +106,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 596650,
+    "imdbId": "tt9052870",
     "title": "Chhichhore",
     "year": "2019",
     "character": "Anirudh Pathak",
@@ -100,6 +116,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 466550,
+    "imdbId": "tt6593054",
     "title": "Drive",
     "year": "2019",
     "character": "Samar",
@@ -109,6 +126,7 @@ export const films: Film[] = [
   },
   {
     "tmdbId": 645484,
+    "imdbId": "tt8110330",
     "title": "Dil Bechara",
     "year": "2020",
     "character": "Immanuel Rajkumar Junior",

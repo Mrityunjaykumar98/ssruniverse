@@ -63,6 +63,19 @@ export const icons = {
       <path d="m16 16 4.5 4.5" />
     </svg>
   ),
+  atom: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <circle cx="12" cy="12" r="2" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="4" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(60 12 12)" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(120 12 12)" />
+    </svg>
+  ),
+  code: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <path d="m8.5 8-4.5 4 4.5 4M15.5 8l4.5 4-4.5 4M13.5 5l-3 14" />
+    </svg>
+  ),
   menu: (p: IconProps) => (
     <svg {...base} {...p} aria-hidden>
       <path d="M4 7h16M4 12h16M4 17h16" />
