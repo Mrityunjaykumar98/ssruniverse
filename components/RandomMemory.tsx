@@ -1,0 +1,5 @@
+"use client";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { memories } from "@/data/memories";
+export function RandomMemory(){const [memory,setMemory]=useState<(typeof memories)[number] | null>(null); return <section id="fans" className="section bg-[#c9a664] text-[#070a12]"><div className="section-inner text-center"><p className="text-[10px] font-bold tracking-[.2em]">06 / A LITTLE ORBIT</p><h2 className="display mx-auto mt-4 max-w-xl text-5xl leading-none md:text-7xl">A MEMORY, AT RANDOM.</h2><button onClick={()=>setMemory(memories[Math.floor(Math.random()*memories.length)])} className="mt-9 border border-[#070a12] px-7 py-4 text-xs font-bold tracking-[.18em] transition hover:bg-[#070a12] hover:text-[#f6f2e9]">✨ SURPRISE ME</button><AnimatePresence mode="wait">{memory&&<motion.div key={memory.title} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="mx-auto mt-8 max-w-md border-t border-[#070a12]/30 pt-5"><p className="display text-2xl">{memory.title}</p><p className="mt-2 text-sm text-[#070a12]/65">{memory.note}</p></motion.div>}</AnimatePresence></div></section>}
