@@ -21,11 +21,6 @@ function playableId(moment: Moment) {
   return moment.clip?.youtubeId ?? null;
 }
 
-/** Who to credit for the moving picture, when there is one. */
-function videoSource(moment: Moment) {
-  return moment.kind === "video" ? moment.source : (moment.clip?.source ?? null);
-}
-
 /** Tile art: a photograph, or the video's thumbnail cropped past its bars. */
 function Thumb({ moment }: { moment: Moment }) {
   if (moment.kind === "photo") {
@@ -267,6 +262,8 @@ export function MemoriesSection() {
                 {showing.kind === "photo" && showing.clip && (
                   <span className="mt-2 block text-[11px] text-[var(--paper-40)]">
                     {watching ? "Now playing" : "Footage"}: {showing.clip.label}
+                    {" · "}
+                    <span className="text-[var(--gold)]/70">{showing.clip.source}</span>
                   </span>
                 )}
               </span>
@@ -290,12 +287,6 @@ export function MemoriesSection() {
               </span>
             </figcaption>
 
-            {embedId && (
-              <p className="mt-3 text-[10px] leading-4 text-[var(--paper-40)]">
-                Video by {videoSource(showing)}, embedded from their channel via
-                YouTube&rsquo;s privacy-enhanced player. Copyright remains with its owner.
-              </p>
-            )}
           </figure>
 
           <button

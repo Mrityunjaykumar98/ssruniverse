@@ -26,7 +26,9 @@ const script = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "The Sushant Universe",
+  // The wordmark is "SSR Universe", but the document title keeps his full
+  // name so the site is findable by people searching for him.
+  title: "SSR Universe — A Sushant Singh Rajput Tribute",
   description:
     "An independent, fan-made tribute to Sushant Singh Rajput — his films, his music, and the curiosity he left behind.",
 };

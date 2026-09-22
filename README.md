@@ -1,4 +1,4 @@
-# The Sushant Universe
+# SSR Universe
 
 An independent, fan-made cinematic tribute to Sushant Singh Rajput—built with Next.js, TypeScript, Tailwind CSS, and Framer Motion.
 

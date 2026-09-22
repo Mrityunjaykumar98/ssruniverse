@@ -12,7 +12,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const API = "https://commons.wikimedia.org/w/api.php";
-const UA = "SushantUniverse/0.1 (fan memorial site; mrityunjay.kumar@appknit.io)";
+const UA = "SSRUniverse/0.1 (fan memorial site; mrityunjay.kumar@appknit.io)";
 const OUT_DIR = join(process.cwd(), "public", "images");
 
 /** `width` is the largest size the image is ever displayed at. */

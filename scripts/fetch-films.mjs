@@ -18,7 +18,7 @@ import { join } from "node:path";
 const PERSON_ID = 1192902; // Sushant Singh Rajput
 const API = "https://api.themoviedb.org/3";
 const TOKEN = process.env.TMDB_READ_TOKEN;
-const UA = "SushantUniverse/0.1 (fan memorial; mrityunjay.kumar@appknit.io)";
+const UA = "SSRUniverse/0.1 (fan memorial; mrityunjay.kumar@appknit.io)";
 
 /**
  * The curated canon, in release order. TMDB supplies the artwork; this list
