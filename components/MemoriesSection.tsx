@@ -11,6 +11,21 @@ import {
   type MomentCategory,
 } from "@/data/moments";
 
+/**
+ * Both kinds of tile can play: a video moment is the video, and a photograph
+ * may carry footage of the same occasion. Returns the id to embed, or null
+ * when there is nothing to watch.
+ */
+function playableId(moment: Moment) {
+  if (moment.kind === "video") return moment.youtubeId;
+  return moment.clip?.youtubeId ?? null;
+}
+
+/** Who to credit for the moving picture, when there is one. */
+function videoSource(moment: Moment) {
+  return moment.kind === "video" ? moment.source : (moment.clip?.source ?? null);
+}
+
 /** Tile art: a photograph, or the video's thumbnail cropped past its bars. */
 function Thumb({ moment }: { moment: Moment }) {
   if (moment.kind === "photo") {
@@ -34,6 +49,14 @@ function Thumb({ moment }: { moment: Moment }) {
       // clean 16:9 frame.
       className="scale-[1.36] object-cover saturate-[.75] transition duration-700 group-hover:scale-[1.44] group-hover:saturate-100"
     />
+  );
+}
+
+function PlayGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M8 5.5v13l11-6.5z" />
+    </svg>
   );
 }
 
@@ -82,7 +105,8 @@ export function MemoriesSection() {
     };
   }, [showing, step, close]);
 
-  const videoCount = moments.filter((m) => m.kind === "video").length;
+  const playableCount = moments.filter((m) => playableId(m)).length;
+  const embedId = showing ? playableId(showing) : null;
 
   return (
     <section id="memories" className="section">
@@ -95,7 +119,7 @@ export function MemoriesSection() {
               The Sushant we loved.
             </p>
             <p className="section-copy mt-5">
-              {moments.length} moments &mdash; {videoCount} of them you can watch.
+              {moments.length} moments &mdash; {playableCount} of them you can watch.
               Scenes and the making of them, what he said on stage and in
               conversation, and the photographs in between.
             </p>
@@ -105,7 +129,11 @@ export function MemoriesSection() {
           </p>
         </div>
 
-        <div className="rail mt-10 flex gap-2 overflow-x-auto pb-2" role="tablist" aria-label="Filter moments">
+        <div
+          className="rail mt-10 flex gap-2 overflow-x-auto pb-2"
+          role="tablist"
+          aria-label="Filter moments"
+        >
           {categories.map(({ id, label, note }) => {
             const active = id === filter;
             const count =
@@ -148,11 +176,9 @@ export function MemoriesSection() {
                 <Thumb moment={moment} />
                 <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(4,6,12,.92),transparent_58%)]" />
 
-                {moment.kind === "video" && (
+                {playableId(moment) && (
                   <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-[var(--paper)]/60 bg-[rgba(4,6,12,.5)] text-[var(--paper)] backdrop-blur-sm transition group-hover:border-[var(--gold)] group-hover:text-[var(--gold)]">
-                    <svg viewBox="0 0 24 24" className="ml-0.5 h-3.5 w-3.5" fill="currentColor" aria-hidden>
-                      <path d="M8 5.5v13l11-6.5z" />
-                    </svg>
+                    <PlayGlyph className="ml-0.5 h-3.5 w-3.5" />
                   </span>
                 )}
 
@@ -177,12 +203,12 @@ export function MemoriesSection() {
           onClick={close}
         >
           <figure className="m-0 w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            {showing.kind === "video" && watching ? (
+            {watching && embedId ? (
               <div className="aspect-video w-full overflow-hidden rounded-sm bg-black">
                 <iframe
-                  key={showing.youtubeId}
+                  key={embedId}
                   className="h-full w-full"
-                  src={`https://www.youtube-nocookie.com/embed/${showing.youtubeId}?autoplay=1&rel=0`}
+                  src={`https://www.youtube-nocookie.com/embed/${embedId}?autoplay=1&rel=0`}
                   title={showing.title}
                   allow="autoplay; encrypted-media; picture-in-picture"
                   allowFullScreen
@@ -200,25 +226,35 @@ export function MemoriesSection() {
                   alt=""
                   fill
                   sizes="min(100vw, 56rem)"
-                  // The frame here is already 16:9, so object-cover crops the
-                  // thumbnail's letterbox bars without any extra scaling.
+                  // This frame is already 16:9, so cover crops the bars away.
                   className="object-cover opacity-75"
                 />
                 <span className="absolute inset-0 grid place-items-center">
                   <span className="grid h-20 w-20 place-items-center rounded-full border border-[var(--paper)]/70 bg-[rgba(4,6,12,.45)] text-[var(--paper)] backdrop-blur-sm transition hover:scale-105 hover:border-[var(--gold)] hover:text-[var(--gold)]">
-                    <svg viewBox="0 0 24 24" className="ml-1 h-8 w-8" fill="currentColor" aria-hidden>
-                      <path d="M8 5.5v13l11-6.5z" />
-                    </svg>
+                    <PlayGlyph className="ml-1 h-8 w-8" />
                   </span>
                 </span>
               </button>
             ) : (
+              /* Photograph, with its footage offered over the top when it has any. */
               <div className="relative mx-auto w-fit">
                 <Photo
                   slug={showing.slug}
                   alt={showing.context}
                   className="max-h-[68vh] w-auto rounded-sm object-contain"
                 />
+                {embedId && (
+                  <button
+                    type="button"
+                    onClick={() => setWatching(true)}
+                    className="absolute inset-0 grid place-items-center"
+                  >
+                    <span className="sr-only">Watch: {showing.clip?.label}</span>
+                    <span className="grid h-16 w-16 place-items-center rounded-full border border-[var(--paper)]/70 bg-[rgba(4,6,12,.45)] text-[var(--paper)] backdrop-blur-sm transition hover:scale-105 hover:border-[var(--gold)] hover:text-[var(--gold)]">
+                      <PlayGlyph className="ml-1 h-6 w-6" />
+                    </span>
+                  </button>
+                )}
               </div>
             )}
 
@@ -228,6 +264,11 @@ export function MemoriesSection() {
                 <span className="mt-1 block text-xs text-[var(--paper-55)]">
                   {showing.context}
                 </span>
+                {showing.kind === "photo" && showing.clip && (
+                  <span className="mt-2 block text-[11px] text-[var(--paper-40)]">
+                    {watching ? "Now playing" : "Footage"}: {showing.clip.label}
+                  </span>
+                )}
               </span>
               <span className="text-[10px] text-[var(--paper-40)]">
                 {showing.kind === "photo" ? (
@@ -249,10 +290,10 @@ export function MemoriesSection() {
               </span>
             </figcaption>
 
-            {showing.kind === "video" && (
+            {embedId && (
               <p className="mt-3 text-[10px] leading-4 text-[var(--paper-40)]">
-                Embedded from the uploader&rsquo;s channel via YouTube&rsquo;s
-                privacy-enhanced player. Copyright remains with its owner.
+                Video by {videoSource(showing)}, embedded from their channel via
+                YouTube&rsquo;s privacy-enhanced player. Copyright remains with its owner.
               </p>
             )}
           </figure>

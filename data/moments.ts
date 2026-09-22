@@ -23,8 +23,16 @@ type Base = {
   feature?: boolean;
 };
 
+/**
+ * Footage of the same occasion as a photograph. Its label describes the video
+ * in its own words, kept separate from the photo's caption, because the two
+ * are not always the same moment: the Raabta still is Kolkata while the clip
+ * is the promotional tour generally.
+ */
+export type Clip = { youtubeId: string; label: string; source: string };
+
 export type Moment =
-  | (Base & { kind: "photo"; slug: CreditSlug })
+  | (Base & { kind: "photo"; slug: CreditSlug; clip?: Clip })
   | (Base & { kind: "video"; youtubeId: string; source: string });
 
 export const categories: { id: MomentCategory | "all"; label: string; note: string }[] = [
@@ -198,6 +206,11 @@ export const moments: Moment[] = [
     title: "That smile",
     context: "Filmfare Style Awards, 2016",
     category: "candid",
+    clip: {
+      youtubeId: "u-9CiOcnnwY",
+      label: "On the carpet at the Filmfare Glamour & Style Awards, 2016",
+      source: "Bollywood Life",
+    },
   },
   {
     id: "photo-premiere",
@@ -206,6 +219,11 @@ export const moments: Moment[] = [
     title: "Where it began",
     context: "With Ankita Lokhande at the Kai Po Che! premiere, 2013",
     category: "candid",
+    clip: {
+      youtubeId: "o3dbI2CgzAA",
+      label: "Arriving at the Kai Po Che! premiere with Ankita Lokhande",
+      source: "SEPL Video",
+    },
   },
   {
     id: "photo-wift",
@@ -222,6 +240,11 @@ export const moments: Moment[] = [
     title: "Still learning",
     context: "With Shekhar Kapur at a master class, IFFI Goa, 2017",
     category: "candid",
+    clip: {
+      youtubeId: "C_eSla-emEM",
+      label: "The master class with Shekhar Kapur, IFFI 2017",
+      source: "Bharti Dubey",
+    },
   },
   {
     id: "photo-raabta",
@@ -231,6 +254,11 @@ export const moments: Moment[] = [
     context: "Promoting Raabta with Kriti Sanon, Kolkata, 2017",
     category: "candid",
     feature: true,
+    clip: {
+      youtubeId: "buDuqadHwL0",
+      label: "On the Raabta promotional tour with Kriti Sanon",
+      source: "MH One News",
+    },
   },
   {
     id: "photo-dhoni",
@@ -239,6 +267,11 @@ export const moments: Moment[] = [
     title: "Between takes",
     context: "Promoting M.S. Dhoni: The Untold Story, 2016",
     category: "candid",
+    clip: {
+      youtubeId: "AA8taRsyR8g",
+      label: "The M.S. Dhoni trailer launch, uncut",
+      source: "Movie Talkies",
+    },
   },
   {
     id: "photo-kedarnath",
@@ -247,6 +280,11 @@ export const moments: Moment[] = [
     title: "Kedarnath",
     context: "With Sara Ali Khan, 2018",
     category: "candid",
+    clip: {
+      youtubeId: "CYYGqvqW_Sc",
+      label: "The Kedarnath trailer launch with Sara Ali Khan",
+      source: "Bollywood Hungama",
+    },
   },
   {
     id: "photo-kai-po-che",
@@ -255,6 +293,11 @@ export const moments: Moment[] = [
     title: "Kai Po Che!",
     context: "At the premiere, 2013",
     category: "candid",
+    clip: {
+      youtubeId: "G19faYsLtlc",
+      label: "The Kai Po Che! official trailer — his first film",
+      source: "Firecracker Productions",
+    },
   },
   {
     id: "photo-kangna",
@@ -271,6 +314,11 @@ export const moments: Moment[] = [
     title: "IIFA",
     context: "Green carpet, 2017",
     category: "candid",
+    clip: {
+      youtubeId: "eB_fGMuSteI",
+      label: "His journey with IIFA",
+      source: "IIFA Awards",
+    },
   },
 ];
 
