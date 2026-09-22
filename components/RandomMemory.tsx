@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { Photo } from "@/components/Photo";
-import { memories, type Memory } from "@/data/memories";
+import { photoMoments, type Moment } from "@/data/moments";
 
 export function RandomMemory() {
-  const [memory, setMemory] = useState<Memory | null>(null);
+  const [memory, setMemory] = useState<Extract<Moment, { kind: "photo" }> | null>(null);
 
   const surprise = () => {
     setMemory((current) => {
       // Never hand back the one already on screen.
-      const pool = current ? memories.filter((m) => m.slug !== current.slug) : memories;
+      const pool = current
+        ? photoMoments.filter((m) => m.slug !== current.slug)
+        : photoMoments;
       return pool[Math.floor(Math.random() * pool.length)];
     });
   };
@@ -57,7 +59,7 @@ export function RandomMemory() {
               />
             </div>
             <figcaption>
-              <p className="display text-3xl leading-tight">{memory.caption}</p>
+              <p className="display text-3xl leading-tight">{memory.title}</p>
               <p className="mt-3 text-sm leading-relaxed text-[var(--paper-55)]">
                 {memory.context}
               </p>
