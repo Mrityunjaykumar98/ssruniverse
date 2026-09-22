@@ -25,7 +25,7 @@ export function Footer() {
               <span className="mr-2 text-[var(--gold)]" aria-hidden>
                 ✦
               </span>
-              THE SUSHANT UNIVERSE
+              SSR UNIVERSE
             </p>
             <p className="mt-2 text-xs text-[var(--paper-40)]">
               A place to remember. A universe to explore.
