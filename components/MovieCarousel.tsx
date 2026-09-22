@@ -1,23 +1,11 @@
 import { FilmRail } from "@/components/FilmRail";
-import { Photo } from "@/components/Photo";
+import { PosterWall } from "@/components/PosterWall";
 
 export function MovieCarousel() {
   return (
     <section id="actor" className="section">
       <div className="section-inner grid items-start gap-10 lg:grid-cols-[minmax(0,.7fr)_minmax(0,1.3fr)] lg:gap-14">
-        <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-[var(--rule)]">
-          <Photo
-            slug="actor"
-            alt="Sushant Singh Rajput in 2017"
-            fill
-            sizes="(max-width: 1024px) 100vw, 30vw"
-            className="scale-[1.15] object-cover object-[52%_16%] contrast-[1.08] saturate-[.65]"
-          />
-          {/* Same grade as the hero portrait, so the two read as one set. */}
-          <div className="absolute inset-0 bg-[#0d1b33] opacity-60 mix-blend-color" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(4,6,12,.95),rgba(4,6,12,.25)_55%,rgba(4,6,12,.5))]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_38%,transparent_30%,rgba(4,6,12,.7)_100%)]" />
-        </div>
+        <PosterWall />
 
         <div>
           <p className="eyebrow rule-lead">01 / Filmography</p>
