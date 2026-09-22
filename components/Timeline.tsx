@@ -1,2 +1,47 @@
 import { timeline } from "@/data/timeline";
-export function Timeline(){return <section id="journey" className="section"><div className="section-inner"><p className="eyebrow">05 / A journey</p><h2 className="display section-title">THE JOURNEY</h2><ol className="mt-12 grid gap-0 border-l border-white/15 md:grid-cols-6 md:border-l-0 md:border-t">{timeline.map(item=><li key={item} className="relative min-h-20 border-b border-white/10 py-4 pl-7 text-sm text-white/70 md:min-h-28 md:border-b-0 md:border-r md:px-4 md:pt-7"><i className="absolute -left-[5px] top-5 h-2 w-2 rounded-full bg-[#c9a664] md:-top-[5px] md:left-4"/>{item}</li>)}</ol></div></section>}
+
+export function Timeline() {
+  return (
+    <section id="journey" className="section border-t border-[var(--rule)]">
+      <div className="section-inner">
+        <p className="eyebrow rule-lead">05 / A journey</p>
+        <h2 className="display section-title">THE JOURNEY</h2>
+        <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
+          A life of dreams, courage and purpose.
+        </p>
+      </div>
+
+      {/* The rail bleeds past the shell so the line runs to the screen edge,
+          with its own padding restoring the gutter at the ends. */}
+      <div className="rail mt-14 overflow-x-auto pb-4">
+        <ol className="relative mx-auto flex min-w-max gap-0 px-5 md:px-8">
+          {/* The spine, drawn behind the markers. */}
+          <li
+            aria-hidden
+            className="absolute left-5 right-5 top-[7px] h-px bg-[linear-gradient(90deg,transparent,var(--gold-dim)_6%,var(--gold-dim)_94%,transparent)] md:left-8 md:right-8"
+          />
+          {timeline.map((item) => (
+            <li key={item.year + item.title} className="group relative w-44 shrink-0 pr-6">
+              <span className="relative block h-4">
+                <span className="absolute left-0 top-[3px] h-2.5 w-2.5 rounded-full bg-[var(--gold)] ring-4 ring-[var(--ink)] transition group-hover:scale-125" />
+              </span>
+              <p className="mt-4 text-[11px] font-bold tracking-[.16em] text-[var(--gold)]">
+                {item.year}
+              </p>
+              <p className="display mt-1.5 text-xl leading-tight">{item.title}</p>
+              <p className="mt-1.5 text-[11px] leading-snug text-[var(--paper-40)]">
+                {item.note}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="section-inner mt-8">
+        <p className="text-[10px] tracking-[.16em] text-[var(--paper-40)]">
+          SCROLL THE TIMELINE &rarr;
+        </p>
+      </div>
+    </section>
+  );
+}
