@@ -1,3 +1,4 @@
+import { HeroParallax } from "@/components/HeroParallax";
 import { Photo } from "@/components/Photo";
 
 /* Deterministic field so server and client markup agree. */
@@ -16,6 +17,8 @@ const stars = Array.from({ length: 70 }, (_, i) => ({
 export function Hero() {
   return (
     <section id="top" className="relative min-h-screen overflow-hidden bg-[var(--ink)]">
+      <HeroParallax />
+
       {/* Night sky: a real deep-space plate, dimmed and pushed to the right
           so the left column stays dark enough to carry the type. The CSS
           stars sit on top to give the still image a little life. */}
@@ -27,6 +30,7 @@ export function Hero() {
           preload
           sizes="100vw"
           className="object-cover object-[62%_45%] opacity-[.6] contrast-[1.2]"
+          style={{ transform: "translate3d(0, calc(var(--scroll-y, 0) * 0.16px), 0) scale(1.06)" }}
         />
         {/* Deepen the left edge behind the headline. */}
         <div className="absolute inset-0 bg-[linear-gradient(100deg,#04060c_14%,rgba(6,9,18,.82)_38%,rgba(8,12,24,.35)_70%,rgba(4,6,12,.6)_100%)]" />
@@ -54,6 +58,7 @@ export function Hero() {
         aria-hidden
         className="absolute inset-y-0 right-0 w-full opacity-40 md:w-[56%] md:opacity-100 lg:w-[50%]"
         style={{
+          transform: "translate3d(0, calc(var(--scroll-y, 0) * 0.07px), 0)",
           maskImage:
             "linear-gradient(to right, transparent 0%, rgba(0,0,0,.5) 26%, #000 62%)",
           WebkitMaskImage:
@@ -77,7 +82,10 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-[var(--shell)] flex-col justify-center px-5 pb-24 pt-32 md:px-8">
+      <div
+        className="relative mx-auto flex min-h-screen max-w-[var(--shell)] flex-col justify-center px-5 pb-24 pt-32 md:px-8"
+        style={{ transform: "translate3d(0, calc(var(--scroll-y, 0) * -0.05px), 0)" }}
+      >
         <div className="max-w-2xl">
           <p
             className="rise display text-xl italic leading-snug text-[var(--paper-70)] md:text-2xl"

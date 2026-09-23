@@ -5,9 +5,11 @@ export function MovieCarousel() {
   return (
     <section id="actor" className="section">
       <div className="section-inner grid items-start gap-10 lg:grid-cols-[minmax(0,.7fr)_minmax(0,1.3fr)] lg:gap-14">
-        <PosterOrbit />
+        <div data-reveal="left">
+          <PosterOrbit />
+        </div>
 
-        <div>
+        <div data-reveal="right">
           <p className="eyebrow rule-lead">01 / Filmography</p>
           <h2 className="display section-title">THE ACTOR</h2>
           <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">

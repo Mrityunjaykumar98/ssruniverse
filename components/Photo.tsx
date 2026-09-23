@@ -6,6 +6,8 @@ type PhotoProps = {
   slug: CreditSlug;
   alt: string;
   className?: string;
+  /** Passed through for parallax and other per-instance transforms. */
+  style?: React.CSSProperties;
   /** Stretch to the nearest positioned ancestor instead of flowing inline. */
   fill?: boolean;
   sizes?: string;
@@ -23,6 +25,7 @@ export function Photo({
   slug,
   alt,
   className,
+  style,
   fill,
   sizes,
   preload,
@@ -38,6 +41,7 @@ export function Photo({
       src={credit.src}
       alt={alt}
       className={className}
+      style={style}
       preload={preload}
       sizes={sizes ?? (fill ? "100vw" : undefined)}
       {...(fill

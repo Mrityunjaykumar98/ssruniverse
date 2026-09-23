@@ -9,11 +9,17 @@ export function SiteHeader() {
   const [active, setActive] = useState<string>("top");
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  /* 0–1 through the page, drawn as a hairline under the bar. */
+  const [progress, setProgress] = useState(0);
 
   /* Highlight the link whose section currently owns the upper third of the
      viewport, and swap the bar to its solid state once the hero is behind us. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      const runway = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(runway > 0 ? Math.min(1, window.scrollY / runway) : 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -101,6 +107,14 @@ export function SiteHeader() {
           <Icon name={menuOpen ? "close" : "menu"} className="h-6 w-6" />
         </button>
       </div>
+
+      {/* Reading progress. Scales rather than animating width, so it stays
+          on the compositor and never lays out. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-px origin-left bg-[linear-gradient(90deg,var(--gold-dim),var(--gold-bright))]"
+        style={{ transform: `scaleX(${progress})` }}
+      />
 
       <AnimatePresence>
         {menuOpen && (

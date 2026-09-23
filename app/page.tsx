@@ -5,6 +5,7 @@ import { MemoriesSection } from "@/components/MemoriesSection";
 import { MovieCarousel } from "@/components/MovieCarousel";
 import { MusicSection } from "@/components/MusicSection";
 import { RandomMemory } from "@/components/RandomMemory";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Timeline } from "@/components/Timeline";
 
@@ -15,6 +16,7 @@ export default function Home() {
         Skip to content
       </a>
       <SiteHeader />
+      <ScrollReveal />
       <main>
         <Hero />
         <MovieCarousel />
