@@ -221,14 +221,19 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Accordion. grid-template-rows 0fr -> 1fr animates to content height
-   without measuring anything in JS. */
-.collapse {
+   without measuring anything in JS.
+
+   Named "drawer", not "collapse": Tailwind ships a `collapse` utility that
+   sets visibility:collapse, which hid the panel's contents while leaving an
+   embedded player audible.
+   */
+.drawer {
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.collapse > * { overflow: hidden; min-height: 0; }
-.collapse[data-open] { grid-template-rows: 1fr; }
+.drawer > * { overflow: hidden; min-height: 0; }
+.drawer[data-open] { grid-template-rows: 1fr; }
 
 /* A soft gold sweep that crosses a card on hover. */
 .sheen::after {
@@ -318,6 +323,6 @@ button:disabled {
   /* Reveal-on-scroll content must be visible, not merely un-animated. */
   [data-reveal] { opacity: 1 !important; transform: none !important; }
   .spine { transform: scaleX(1) !important; }
-  .collapse { transition: none !important; }
+  .drawer { transition: none !important; }
   .dot { opacity: 1 !important; }
 }

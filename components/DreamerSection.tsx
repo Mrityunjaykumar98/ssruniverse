@@ -151,7 +151,7 @@ export function DreamerSection() {
                   </span>
                 </button>
 
-                <div className="collapse" {...(open ? { "data-open": "" } : {})}>
+                <div className="drawer" {...(open ? { "data-open": "" } : {})}>
                   <div>
                     <div className="grid gap-5 pb-8 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-end">
                       <div className="aspect-video overflow-hidden rounded-sm border border-[var(--rule)] bg-black">
