@@ -106,7 +106,7 @@ export function MemoriesSection() {
   return (
     <section id="memories" className="section">
       <div className="section-inner">
-        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end" data-reveal>
           <div>
             <p className="eyebrow rule-lead">03 / Fragments</p>
             <h2 className="display section-title">THE MEMORIES</h2>
@@ -157,7 +157,7 @@ export function MemoriesSection() {
           })}
         </div>
 
-        <ul className="mt-8 grid auto-rows-[13rem] grid-cols-2 gap-3 md:auto-rows-[15rem] md:grid-cols-4">
+        <ul data-reveal style={{ "--delay": "0.08s" } as React.CSSProperties} className="mt-8 grid auto-rows-[13rem] grid-cols-2 gap-3 md:auto-rows-[15rem] md:grid-cols-4">
           {shown.map((moment) => (
             <li key={moment.id} className={moment.feature ? "col-span-2" : undefined}>
               <button

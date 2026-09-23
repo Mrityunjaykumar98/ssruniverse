@@ -47,6 +47,7 @@ export function MusicSection() {
   return (
     <section id="music" className="section border-y border-[var(--rule)] bg-[var(--ink-raised)]">
       <div className="section-inner">
+        <div data-reveal>
         <p className="eyebrow rule-lead">02 / Soundtrack</p>
         <h2 className="display section-title">THE MUSIC</h2>
         <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
@@ -56,6 +57,7 @@ export function MusicSection() {
           Every soundtrack he was part of &mdash; {songs.length} songs across{" "}
           {filmOrder.length} films. Each one plays from its rights holder&rsquo;s own channel.
         </p>
+        </div>
 
         {/* Film selector */}
         <div
@@ -86,7 +88,7 @@ export function MusicSection() {
           })}
         </div>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14" data-reveal style={{ "--delay": "0.1s" } as React.CSSProperties}>
           {/* Player */}
           <div className="rounded-sm border border-[var(--rule)] bg-[var(--card)]/60 p-4 sm:p-5">
             <div className="relative aspect-video overflow-hidden rounded-sm bg-black">
