@@ -77,8 +77,11 @@ export const dreams: Dream[] = [
     icon: "heart",
     title: "Things he wanted to learn",
     text: "He kept a list of fifty dreams. Flying a plane, teaching children, learning to send a rocket up.",
-    youtubeId: "iSixCL0Opx4",
-    source: "BBC News Hindi",
-    clipTitle: "The fifty dreams, and the ones left unfinished",
+    // The BBC piece on the fifty dreams carries a YouTube content warning,
+    // which blocks embedded playback outright. This shows him doing one of
+    // them instead.
+    youtubeId: "5TyvfoxHOm0",
+    source: "Videosly",
+    clipTitle: "In a flight simulator, learning to fly — one of the fifty",
   },
 ];

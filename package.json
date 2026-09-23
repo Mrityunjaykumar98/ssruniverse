@@ -9,7 +9,8 @@
     "lint": "eslint",
     "images": "node scripts/fetch-images.mjs",
     "films": "node --env-file=.env.local scripts/fetch-films.mjs",
-    "songs": "node scripts/fetch-songs.mjs"
+    "songs": "node scripts/fetch-songs.mjs",
+    "check:embeds": "node scripts/check-embeds.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.4.0",
