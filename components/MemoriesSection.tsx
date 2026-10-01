@@ -22,6 +22,21 @@ function playableId(moment: Moment) {
   return moment.clip?.youtubeId ?? null;
 }
 
+/**
+ * A print's resting angle and whether it is taped, derived from its id so the
+ * wall looks hand-hung but is identical on every render and on the server.
+ */
+function tiltFor(id: string) {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+  const u = (n: number) => ((h >>> n) & 0xff) / 255;
+  return {
+    angle: (u(0) - 0.5) * 7, // between -3.5° and 3.5°
+    tape: u(8) > 0.55,
+    tapeAngle: (u(16) - 0.5) * 14,
+  };
+}
+
 /** Tile art: a photograph, or the video's thumbnail cropped past its bars. */
 function Thumb({ moment }: { moment: Moment }) {
   if (moment.kind === "photo") {
@@ -31,7 +46,7 @@ function Thumb({ moment }: { moment: Moment }) {
         alt={moment.context}
         fill
         sizes="(max-width: 768px) 50vw, 25vw"
-        className="object-cover object-[50%_22%] saturate-[.75] transition duration-700 group-hover:scale-[1.06] group-hover:saturate-100"
+        className="object-cover object-[50%_22%] sepia-[.28] saturate-[.8] transition duration-700 group-hover:scale-[1.04] group-hover:sepia-0 group-hover:saturate-100"
       />
     );
   }
@@ -43,7 +58,7 @@ function Thumb({ moment }: { moment: Moment }) {
       sizes="(max-width: 768px) 50vw, 25vw"
       // hqdefault is 4:3 with letterbox bars; scaling past them recovers a
       // clean 16:9 frame.
-      className="scale-[1.36] object-cover saturate-[.75] transition duration-700 group-hover:scale-[1.44] group-hover:saturate-100"
+      className="scale-[1.36] object-cover sepia-[.28] saturate-[.8] transition duration-700 group-hover:scale-[1.4] group-hover:sepia-0 group-hover:saturate-100"
     />
   );
 }
@@ -196,32 +211,60 @@ export function MemoriesSection() {
           })}
         </div>
 
-        <ul data-reveal style={{ "--delay": "0.08s" } as React.CSSProperties} className="mt-8 grid auto-rows-[13rem] grid-cols-2 gap-3 md:auto-rows-[15rem] md:grid-cols-4">
-          {shown.map((moment) => (
-            <li key={moment.id} className={moment.feature ? "col-span-2" : undefined}>
-              <button
-                type="button"
-                onClick={() => openMoment(moment.id)}
-                className="group relative h-full w-full overflow-hidden rounded-sm border border-[var(--rule)] text-left transition hover:border-[var(--gold)]"
-              >
-                <Thumb moment={moment} />
-                <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(4,6,12,.92),transparent_58%)]" />
+        {/* A wall of prints rather than a grid of tiles: memories should look
+            like things that could be held. CSS columns give the uneven,
+            pinned-up rhythm; each print hangs at its own slight angle. */}
+        <ul
+          data-reveal
+          style={{ "--delay": "0.08s" } as React.CSSProperties}
+          className="mt-12 columns-2 gap-5 sm:columns-3 lg:columns-4 lg:gap-7"
+        >
+          {shown.map((moment) => {
+            const tilt = tiltFor(moment.id);
+            const video = moment.kind === "video";
+            return (
+              <li key={moment.id} className="mb-7 break-inside-avoid lg:mb-9">
+                <button
+                  type="button"
+                  onClick={() => openMoment(moment.id)}
+                  className="print group relative block w-full text-left"
+                  style={{ "--r": `${tilt.angle}deg` } as React.CSSProperties}
+                >
+                  {/* Tape on some prints, never the same two in a row. */}
+                  {tilt.tape && (
+                    <span
+                      aria-hidden
+                      className="print-tape"
+                      style={{ "--tr": `${tilt.tapeAngle}deg` } as React.CSSProperties}
+                    />
+                  )}
 
-                {playableId(moment) && (
-                  <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-[var(--paper)]/60 bg-[rgba(4,6,12,.5)] text-[var(--paper)] backdrop-blur-sm transition group-hover:border-[var(--gold)] group-hover:text-[var(--gold)]">
-                    <PlayGlyph className="ml-0.5 h-3.5 w-3.5" />
+                  <span
+                    className={`relative block overflow-hidden bg-[#1b1a18] ${
+                      video ? "aspect-[16/11]" : "aspect-[4/5]"
+                    }`}
+                  >
+                    <Thumb moment={moment} />
+                    {playableId(moment) && (
+                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,16,12,.72)] px-2.5 py-1 text-[9px] font-bold tracking-[.16em] text-[#f3e7cf] backdrop-blur-sm">
+                        <PlayGlyph className="h-2.5 w-2.5" />
+                        {video ? "FILM" : "FOOTAGE"}
+                      </span>
+                    )}
                   </span>
-                )}
 
-                <span className="absolute inset-x-3 bottom-3">
-                  <span className="display block text-lg leading-tight">{moment.title}</span>
-                  <span className="mt-0.5 block text-[10px] leading-tight text-[var(--paper-40)]">
-                    {moment.context}
+                  <span className="block px-1 pb-1 pt-3">
+                    <span className="script block text-[1.65rem] leading-[1.05] text-[#2b2620]">
+                      {moment.title}
+                    </span>
+                    <span className="mt-1 block text-[10px] leading-snug text-[#7b6f5f]">
+                      {moment.context}
+                    </span>
                   </span>
-                </span>
-              </button>
-            </li>
-          ))}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
