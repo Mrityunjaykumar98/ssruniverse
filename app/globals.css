@@ -321,6 +321,111 @@ a { color: inherit; text-decoration: none; }
   backdrop-filter: blur(1px);
 }
 
+/* ============================================================
+   The turntable
+   ============================================================ */
+.turntable {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 240, 210, 0.06), transparent 60%),
+    linear-gradient(160deg, #2a2420 0%, #1a1613 55%, #120f0d 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 235, 200, 0.08) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.6) inset,
+    0 40px 80px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* Grooves: fine concentric rings, so the disc reads as a record and not a
+   black circle. */
+.vinyl {
+  background:
+    repeating-radial-gradient(circle at 50% 50%, #0d0d0e 0 1.4px, #18181a 1.6px 2.6px),
+    #111;
+  box-shadow: 0 0 0 1px #000 inset;
+}
+.vinyl.is-spinning {
+  animation: vinyl-spin 1.8s linear infinite; /* 33 1/3 rpm */
+}
+@keyframes vinyl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* The reflection on the grooves stays put while the disc turns under it. */
+.vinyl-sheen {
+  background:
+    conic-gradient(
+      from 210deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.13) 22deg,
+      transparent 52deg,
+      transparent 180deg,
+      rgba(255, 255, 255, 0.09) 205deg,
+      transparent 236deg
+    );
+  mask-image: radial-gradient(circle, transparent 30%, #000 32%);
+  -webkit-mask-image: radial-gradient(circle, transparent 30%, #000 32%);
+}
+
+.tonearm {
+  transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
+  filter: drop-shadow(6px 10px 8px rgba(0, 0, 0, 0.6));
+}
+
+/* ============================================================
+   The crate
+   ============================================================ */
+.sleeve {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sleeve:hover { transform: translateY(-6px); }
+
+/* The record inside, sliding up out of its sleeve when chosen. */
+.sleeve-disc {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, #c9a664 0 11%, #1a1a1c 11.5% 13%, transparent 13.5%),
+    /* A sheen across the top edge, so a dark disc reads against a dark page. */
+    linear-gradient(170deg, rgba(255, 255, 255, 0.16), transparent 38%),
+    repeating-radial-gradient(circle, #141416 0 1.2px, #232326 1.4px 2.3px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 -6px 18px rgba(0, 0, 0, 0.6);
+  transform: translateY(6%);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sleeve:hover .sleeve-disc { transform: translateY(-20%); }
+/* Far enough out that the label clears the sleeve and it reads as a record. */
+.sleeve.is-out .sleeve-disc { transform: translateY(-50%); }
+.sleeve.is-out > span:nth-of-type(2) {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 16px 34px rgba(0, 0, 0, 0.75);
+}
+
+/* Three bars bouncing beside the track that is playing. */
+.eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.eq i {
+  display: block;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 1px;
+  animation: eq-bounce 0.9s ease-in-out infinite;
+}
+.eq i:nth-child(2) { animation-delay: 0.22s; }
+.eq i:nth-child(3) { animation-delay: 0.44s; }
+@keyframes eq-bounce {
+  0%, 100% { height: 3px; }
+  50%      { height: 12px; }
+}
+
 /* A soft gold sweep that crosses a card on hover. */
 .sheen::after {
   content: "";
@@ -405,9 +510,12 @@ button:disabled {
   .nudge,
   .dot,
   .lit-star,
-  .lit-star-new {
+  .lit-star-new,
+  .vinyl.is-spinning,
+  .eq i {
     animation: none !important;
   }
+  .eq i { height: 8px; }
   /* Reveal-on-scroll content must be visible, not merely un-animated. */
   [data-reveal] { opacity: 1 !important; transform: none !important; }
   .words > span { opacity: 1 !important; transform: none !important; filter: none !important; }
