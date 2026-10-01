@@ -4,35 +4,41 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-/** Sample every Nth pixel. Lower is denser and more expensive. */
+/** Grid pitch in resampled source pixels. Fine, so landed dots read as the photo. */
 const STEP_DESKTOP = 3;
 const STEP_MOBILE = 5;
+const SAMPLE_W = 560;
+const CAMERA_Z = 14;
+const FOV = 50;
+/** Seconds the burst takes, there and back. */
+const BURST = 3.4;
+/** Hold before the burst, so the swap from photo to dots completes first. */
+const HOLD = 0.35;
+/** Scroll distance, in px, over which he dissolves back into the field. */
+const DISSOLVE_PX = 480;
+
+/** Where the photo sits in its box — mirrors the CSS object-position. */
+export type Fit = { x: number; y: number };
+/** The feathered ellipse the photo is masked by — mirrors the CSS mask. */
+export type Mask = { x: number; y: number; rx: number; ry: number; inner: number };
 
 type Cloud = {
-  positions: Float32Array;
-  targets: Float32Array;
+  /** Image-space position of each dot, as fractions of the image. */
+  uv: Float32Array;
   colors: Float32Array;
-  alphas: Float32Array;
   seeds: Float32Array;
   count: number;
   aspect: number;
+  step: number;
 };
 
 /**
- * Reads the photograph into a point cloud: one particle per sampled pixel,
- * carrying that pixel's colour. Particles start scattered through a sphere and
- * fly to their place in the image, so he assembles out of the field rather
- * than being pasted on top of it.
+ * Samples the photograph on a fine grid, grading each dot exactly as the CSS
+ * grades the photo (saturate .7, contrast 1.05), so that at the moment of
+ * handover the dots and the picture are the same image.
  */
-type Focus = { x: number; y: number; rx: number; ry: number };
-
-const smoothstep = (e0: number, e1: number, x: number) => {
-  const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
-  return t * t * (3 - 2 * t);
-};
-
-function buildCloud(img: HTMLImageElement, step: number, focus: Focus): Cloud {
-  const w = 560;
+function buildCloud(img: HTMLImageElement, step: number): Cloud {
+  const w = SAMPLE_W;
   const h = Math.round((img.naturalHeight / img.naturalWidth) * w);
   const canvas = document.createElement("canvas");
   canvas.width = w;
@@ -41,144 +47,151 @@ function buildCloud(img: HTMLImageElement, step: number, focus: Focus): Cloud {
   ctx.drawImage(img, 0, 0, w, h);
   const { data } = ctx.getImageData(0, 0, w, h);
 
-  const pos: number[] = [];
-  const tgt: number[] = [];
+  const uv: number[] = [];
   const col: number[] = [];
-  const alpha: number[] = [];
   const seed: number[] = [];
-  const scale = 8.4 / w; // world units across the plate
+  const grade = (c: number, lum: number) => {
+    const sat = lum + (c - lum) * 0.7; // saturate(.7)
+    return Math.max(0, Math.min(1, (sat - 0.5) * 1.05 + 0.5)); // contrast(1.05)
+  };
 
   for (let y = 0; y < h; y += step) {
     for (let x = 0; x < w; x += step) {
       const i = (y * w + x) * 4;
-      // The ellipse is a guard, not the silhouette: it keeps the sponsor
-      // logos out, and its rim feathers over a wide band so it is never seen.
-      const ex = (x / w - focus.x) / focus.rx;
-      const ey = (y / h - focus.y) / focus.ry;
-      const e = Math.sqrt(ex * ex + ey * ey);
-      if (e > 1) continue;
-      const guard = 1 - smoothstep(0.5, 1, e);
-
       const r = data[i] / 255;
       const g = data[i + 1] / 255;
       const b = data[i + 2] / 255;
       const lum = r * 0.299 + g * 0.587 + b * 0.114;
-
-      // His own lighting defines the shape. The lit face and shirt stay
-      // opaque; the dark jacket and backdrop fade into the page.
-      const a = guard * smoothstep(0.07, 0.46, lum);
-      if (a < 0.025) continue;
-
-      const tx = (x - w / 2) * scale;
-      const ty = -(y - h / 2) * scale;
-      // Brighter pixels sit slightly proud, so the portrait has relief.
-      const tz = (lum - 0.5) * 0.9;
-
-      tgt.push(tx, ty, tz);
-      // Start scattered on a shell around where it will end up.
-      const phi = Math.random() * Math.PI * 2;
-      const b2 = Math.acos(2 * Math.random() - 1);
-      const rad = 9 + Math.random() * 14;
-      pos.push(
-        Math.sin(b2) * Math.cos(phi) * rad,
-        Math.sin(b2) * Math.sin(phi) * rad,
-        Math.cos(b2) * rad - 6,
-      );
-      col.push(r, g, b);
-      alpha.push(a);
+      uv.push((x + step / 2) / w, (y + step / 2) / h);
+      col.push(grade(r, lum), grade(g, lum), grade(b, lum));
       seed.push(Math.random());
     }
   }
 
   return {
-    positions: new Float32Array(pos),
-    targets: new Float32Array(tgt),
+    uv: new Float32Array(uv),
     colors: new Float32Array(col),
-    alphas: new Float32Array(alpha),
     seeds: new Float32Array(seed),
-    count: col.length / 3,
+    count: seed.length,
     aspect: h / w,
+    step,
   };
 }
 
-function Portrait({ cloud, onConverging }: { cloud: Cloud; onConverging?: () => void }) {
+function Stardust({
+  cloud,
+  fit,
+  mask,
+  onShatter,
+  onReform,
+}: {
+  cloud: Cloud;
+  fit: Fit;
+  mask: Mask;
+  onShatter: () => void;
+  onReform: () => void;
+}) {
   const material = useRef<THREE.ShaderMaterial>(null);
-  /** 0 = scattered, 1 = fully assembled. */
-  const progress = useRef(0);
-  const announced = useRef(false);
-  const { viewport, gl } = useThree();
-  /** 0 when no mouse is over the portrait, 1 when one is. Eased per frame. */
-  const strength = useRef(0);
-  const wanted = useRef(0);
-  const pointer = useRef(new THREE.Vector2());
+  const { size, viewport } = useThree();
+  const clock = useRef(-HOLD);
+  const fade = useRef(1);
+  const phase = useRef<"hold" | "burst" | "rest">("hold");
+  const dissolve = useRef(0);
 
-  // The pointer rests at (0, 0) — dead centre — until something moves it, so
-  // an ungated push would punch a permanent hole through his chest for every
-  // visitor on load, and for ever on a touch screen. Only push while a real
-  // mouse is actually over the canvas, and ease it in and out.
   useEffect(() => {
-    const el = gl.domElement;
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      const r = el.getBoundingClientRect();
-      const inside =
-        e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      wanted.current = inside ? 1 : 0;
-      if (inside) {
-        pointer.current.set(
-          ((e.clientX - r.left) / r.width) * 2 - 1,
-          -(((e.clientY - r.top) / r.height) * 2 - 1),
-        );
-      }
+    const onScroll = () => {
+      dissolve.current = Math.min(1, Math.max(0, window.scrollY / DISSOLVE_PX));
     };
-    const away = () => {
-      wanted.current = 0;
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("pointerleave", away);
-    window.addEventListener("blur", away);
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", away);
-      window.removeEventListener("blur", away);
-    };
-  }, [gl]);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  // Built once per cloud. (A useRef initialiser would rebuild it every
-  // render, since its argument is evaluated each time even though only the
-  // first result is kept.)
-  const geometry = useMemo(() => {
+  /**
+   * Lays the dots out with the same arithmetic the browser uses for
+   * object-fit: cover, in the same box, so each one lands on the pixel of the
+   * photograph it was sampled from. Rebuilt on resize, since cover depends on
+   * the box's shape.
+   */
+  const { geometry, dotPx } = useMemo(() => {
+    const visH = 2 * CAMERA_Z * Math.tan(((FOV / 2) * Math.PI) / 180);
+    const visW = visH * (size.width / size.height);
+    const ia = cloud.aspect;
+    const [dW, dH] = visW * ia >= visH ? [visW, visW * ia] : [visH / ia, visH];
+    const left = (visW - dW) * fit.x;
+    const top = (visH - dH) * fit.y;
+
+    const target: number[] = [];
+    const scatter: number[] = [];
+    const color: number[] = [];
+    const alpha: number[] = [];
+    const seed: number[] = [];
+
+    for (let k = 0; k < cloud.count; k++) {
+      const cx = left + cloud.uv[k * 2] * dW;
+      const cy = top + cloud.uv[k * 2 + 1] * dH;
+      const fx = cx / visW;
+      const fy = cy / visH;
+      if (fx < 0 || fx > 1 || fy < 0 || fy > 1) continue;
+
+      // Linear falloff from the inner stop to the rim, exactly as the CSS
+      // radial-gradient on the photo falls off.
+      const ex = (fx - mask.x) / mask.rx;
+      const ey = (fy - mask.y) / mask.ry;
+      const e = Math.sqrt(ex * ex + ey * ey);
+      const m = 1 - Math.min(1, Math.max(0, (e - mask.inner) / (1 - mask.inner)));
+      if (m < 0.01) continue;
+
+      const s = cloud.seeds[k];
+      target.push(cx - visW / 2, visH / 2 - cy, 0);
+      // Each dot flies out along its own line from the centre of the face,
+      // further for dots near the edge, with a little lift toward the viewer.
+      const dx = cx - visW / 2;
+      const dy = visH / 2 - cy;
+      const len = Math.hypot(dx, dy) + 0.4;
+      const reach = 1.4 + s * 4.2;
+      scatter.push((dx / len) * reach, (dy / len) * reach, (s - 0.35) * 5);
+      color.push(cloud.colors[k * 3], cloud.colors[k * 3 + 1], cloud.colors[k * 3 + 2]);
+      alpha.push(m);
+      seed.push(s);
+    }
+
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(cloud.positions.slice(), 3));
-    g.setAttribute("aTarget", new THREE.BufferAttribute(cloud.targets, 3));
-    g.setAttribute("aStart", new THREE.BufferAttribute(cloud.positions, 3));
-    g.setAttribute("aColor", new THREE.BufferAttribute(cloud.colors, 3));
-    g.setAttribute("aAlpha", new THREE.BufferAttribute(cloud.alphas, 1));
-    g.setAttribute("aSeed", new THREE.BufferAttribute(cloud.seeds, 1));
-    return g;
-  }, [cloud]);
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(target), 3));
+    g.setAttribute("aScatter", new THREE.BufferAttribute(new Float32Array(scatter), 3));
+    g.setAttribute("aColor", new THREE.BufferAttribute(new Float32Array(color), 3));
+    g.setAttribute("aAlpha", new THREE.BufferAttribute(new Float32Array(alpha), 1));
+    g.setAttribute("aSeed", new THREE.BufferAttribute(new Float32Array(seed), 1));
+
+    // One sample's width on screen, so a landed dot covers its cell.
+    const pitchWorld = (cloud.step / SAMPLE_W) * dW;
+    return { geometry: g, dotPx: pitchWorld * (size.height / visH) };
+  }, [cloud, size, fit, mask]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   useFrame((_, delta) => {
     if (!material.current) return;
-    // Ease toward assembled, then hold.
-    progress.current = Math.min(1, progress.current + delta * 0.42);
-    // The cloud is ready long before it is visible. Hand over only once the
-    // particles are actually converging, so there is no blank frame between
-    // the photo leaving and the portrait arriving.
-    if (!announced.current && progress.current > 0.35) {
-      announced.current = true;
-      onConverging?.();
+    clock.current += delta;
+
+    if (phase.current === "hold" && clock.current >= 0) {
+      phase.current = "burst";
+      onShatter();
     }
+    const t = Math.max(0, Math.min(1, clock.current / BURST));
+    if (phase.current === "burst" && t >= 1) {
+      phase.current = "rest";
+      onReform();
+    }
+    // Once he has reformed, the dots fade and the photograph carries him.
+    if (phase.current === "rest") fade.current = Math.max(0, fade.current - delta / 0.9);
+
     const u = material.current.uniforms;
-    // Smootherstep so the arrival settles rather than stopping dead.
-    const p = progress.current;
-    u.uProgress.value = p * p * p * (p * (p * 6 - 15) + 10);
+    u.uT.value = t;
     u.uTime.value += delta;
-    strength.current += (wanted.current - strength.current) * Math.min(1, delta * 5);
-    u.uPointerStrength.value = strength.current;
-    u.uPointer.value.copy(pointer.current);
+    u.uFade.value = fade.current;
+    u.uDissolve.value = dissolve.current;
+    u.uDotPx.value = dotPx;
   });
 
   return (
@@ -188,52 +201,67 @@ function Portrait({ cloud, onConverging }: { cloud: Cloud; onConverging?: () => 
         ref={material}
         transparent
         depthWrite={false}
-        // Normal, not additive: additive sums every overlapping particle,
-        // so a dense face over-exposes to flat white and loses its features.
+        // Normal blending, so landed dots composite like the photograph they
+        // replace rather than summing to white where they overlap.
         blending={THREE.NormalBlending}
         uniforms={{
-          uProgress: { value: 0 },
+          uT: { value: 0 },
           uTime: { value: 0 },
-          uPointer: { value: new THREE.Vector2() },
-          uPointerStrength: { value: 0 },
+          uFade: { value: 1 },
+          uDissolve: { value: 0 },
+          uDotPx: { value: 3 },
           uPixelRatio: { value: Math.min(2, viewport.dpr) },
+          uCameraZ: { value: CAMERA_Z },
         }}
         vertexShader={/* glsl */ `
-          attribute vec3 aTarget;
-          attribute vec3 aStart;
+          attribute vec3 aScatter;
           attribute vec3 aColor;
           attribute float aAlpha;
           attribute float aSeed;
-          uniform float uProgress;
+          uniform float uT;
           uniform float uTime;
-          uniform vec2 uPointer;
-          uniform float uPointerStrength;
+          uniform float uFade;
+          uniform float uDissolve;
+          uniform float uDotPx;
           uniform float uPixelRatio;
+          uniform float uCameraZ;
           varying vec3 vColor;
           varying float vAlpha;
 
+          const float PI = 3.14159265;
+
+          vec2 rotate(vec2 v, float a) {
+            float c = cos(a), s = sin(a);
+            return vec2(v.x * c - v.y * s, v.x * s + v.y * c);
+          }
+
           void main() {
-            vColor = aColor;
+            // Staggered so the shatter starts at the edges and reaches the
+            // face last, and the face is first to come back together.
+            float local = clamp((uT - aSeed * 0.22) / 0.78, 0.0, 1.0);
+            // Out and back: zero at both ends, so a dot starts and finishes
+            // on the pixel of the photo it came from.
+            float burst = sin(PI * local);
+            burst = max(burst, uDissolve);
 
-            // Stagger the arrival so the portrait resolves in waves rather
-            // than every particle landing at once.
-            float t = clamp((uProgress - aSeed * 0.35) / 0.65, 0.0, 1.0);
-            vec3 p = mix(aStart, aTarget, t);
+            vec3 off = aScatter * burst;
+            // A slow vortex, so the dust swirls instead of just pulsing.
+            off.xy = rotate(off.xy, (1.0 - local) * 1.4 * (aSeed - 0.5) + uDissolve * 0.9);
+            // Drift while airborne, so it is never mechanical.
+            off.x += sin(uTime * 0.7 + aSeed * 30.0) * 0.18 * burst;
+            off.y += cos(uTime * 0.6 + aSeed * 21.0) * 0.18 * burst;
 
-            // Once settled, breathe very slightly, so it is never truly still.
-            float breath = sin(uTime * 0.6 + aSeed * 12.0) * 0.045 * t;
-            p.z += breath;
-            p.x += sin(uTime * 0.4 + aSeed * 9.0) * 0.02 * t;
-
-            // The pointer pushes particles aside, and they return on their own.
-            vec2 ptr = uPointer * vec2(4.6, 6.4);
-            float d = distance(p.xy, ptr);
-            float push = smoothstep(1.7, 0.0, d) * 0.9 * t * uPointerStrength;
-            p.xy += normalize(p.xy - ptr + 0.0001) * push;
-
+            vec3 p = position + off;
             vec4 mv = modelViewMatrix * vec4(p, 1.0);
-            gl_PointSize = (2.1 + aSeed * 1.1) * uPixelRatio * (38.0 / -mv.z);
-            vAlpha = t * aAlpha;
+
+            // Landed dots are full size and overlap enough to read as solid
+            // photograph; airborne ones shrink to sparks.
+            float sizeK = mix(1.45, 0.8, burst);
+            gl_PointSize = uDotPx * sizeK * uPixelRatio * (uCameraZ / -mv.z);
+
+            // Sparks glow a little brighter than the skin they came from.
+            vColor = aColor * (1.0 + 0.95 * burst);
+            vAlpha = aAlpha * max(uFade, uDissolve);
             gl_Position = projectionMatrix * mv;
           }
         `}
@@ -241,10 +269,9 @@ function Portrait({ cloud, onConverging }: { cloud: Cloud; onConverging?: () => 
           varying vec3 vColor;
           varying float vAlpha;
           void main() {
-            vec2 d = gl_PointCoord - vec2(0.5);
-            if (dot(d, d) > 0.25) discard;
-            float falloff = 1.0 - smoothstep(0.0, 0.25, dot(d, d));
-            gl_FragColor = vec4(vColor, falloff * vAlpha);
+            float r = length(gl_PointCoord - vec2(0.5));
+            if (r > 0.5) discard;
+            gl_FragColor = vec4(vColor, (1.0 - smoothstep(0.4, 0.5, r)) * vAlpha);
           }
         `}
       />
@@ -253,22 +280,31 @@ function Portrait({ cloud, onConverging }: { cloud: Cloud; onConverging?: () => 
 }
 
 /**
- * The hero portrait, rebuilt as a cloud of light.
+ * Shatters the photograph into stardust and reforms it.
  *
- * Falls back to rendering nothing — the plain photograph underneath stays
- * visible — under reduced motion, without WebGL, or on hardware that would
- * struggle. The image is same-origin, so the pixel readback is allowed.
+ * Particles are the transition, not the resting state: spaced widely enough
+ * to read as particles, they cannot carry a face, and for a memorial the face
+ * is the one thing that cannot be traded away. So the photograph is what you
+ * look at; the dust is what it is made of on the way in, and what it returns
+ * to as you scroll past.
+ *
+ * Renders nothing under reduced motion, without WebGL, or on small four-core
+ * devices, and the photograph simply stays put.
  */
 export function ParticlePortrait({
   src,
-  focus,
-  onConverging,
+  fit,
+  mask,
+  onShatter,
+  onReform,
 }: {
   src: string;
-  /** Centre and radii of the subject, as fractions of the image. */
-  focus: Focus;
-  /** Fired once the particles are visibly converging, not when data loads. */
-  onConverging?: () => void;
+  fit: Fit;
+  mask: Mask;
+  /** The dots are in place over the photo and the burst is starting. */
+  onShatter: () => void;
+  /** He has reformed; the photograph should take over again. */
+  onReform: () => void;
 }) {
   const [cloud, setCloud] = useState<Cloud | null>(null);
 
@@ -279,31 +315,32 @@ export function ParticlePortrait({
 
     let cancelled = false;
     const img = new window.Image();
-    img.crossOrigin = "anonymous";
     img.src = src;
     img.onload = () => {
       if (cancelled) return;
-      const step = window.innerWidth < 900 ? STEP_MOBILE : STEP_DESKTOP;
-      setCloud(buildCloud(img, step, focus));
+      setCloud(buildCloud(img, window.innerWidth < 900 ? STEP_MOBILE : STEP_DESKTOP));
     };
     return () => {
       cancelled = true;
     };
-  // focus is a literal at the call site; rebuilding the cloud whenever its
-  // identity changes would restart the assembly on every parent render.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   if (!cloud) return null;
 
   return (
-    <div aria-hidden className="absolute inset-0">
+    <div aria-hidden className="pointer-events-none absolute inset-0">
       <Canvas
         dpr={[1, 2]}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
-        camera={{ fov: 50, near: 0.1, far: 100, position: [0, 0, 14] }}
+        camera={{ fov: FOV, near: 0.1, far: 100, position: [0, 0, CAMERA_Z] }}
       >
-        <Portrait cloud={cloud} onConverging={onConverging} />
+        <Stardust
+          cloud={cloud}
+          fit={fit}
+          mask={mask}
+          onShatter={onShatter}
+          onReform={onReform}
+        />
       </Canvas>
     </div>
   );
