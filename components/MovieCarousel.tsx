@@ -26,7 +26,7 @@ export function MovieCarousel() {
         >
           <span>{films.length} FILMS</span>
           <span>{span}</span>
-          <span className="hidden md:inline">HOVER A STAR &middot; CLICK A TITLE FOR IMDB</span>
+          <span className="hidden md:inline">HOVER TO LEAN A CARD &middot; CLICK TO OPEN ON IMDB</span>
         </div>
 
         <div className="mt-10" data-reveal style={{ "--delay": "0.12s" } as React.CSSProperties}>
