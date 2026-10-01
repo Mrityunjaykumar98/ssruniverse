@@ -1,28 +1,36 @@
-import { FilmRail } from "@/components/FilmRail";
-import { PosterOrbit } from "@/components/PosterOrbit";
+import { FilmConstellation } from "@/components/FilmConstellation";
+import { films } from "@/data/films";
 
 export function MovieCarousel() {
+  const span = `${films[0].year}–${films[films.length - 1].year}`;
+
   return (
     <section id="actor" className="section">
-      <div className="section-inner grid items-start gap-10 lg:grid-cols-[minmax(0,.7fr)_minmax(0,1.3fr)] lg:gap-14">
-        <div data-reveal="left">
-          <PosterOrbit />
+      {/* Full width rather than the split every other section uses: the sky
+          needs the room, and the page needs a change of shape. */}
+      <div className="section-inner">
+        <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-end md:gap-12" data-reveal>
+          <div>
+            <p className="eyebrow rule-lead">01 / Filmography</p>
+            <h2 className="display section-title">THE ACTOR</h2>
+          </div>
+          <p className="display max-w-md pb-3 text-xl italic leading-snug text-[var(--paper-70)]">
+            Eleven films in seven years, drawn as he might have drawn them.
+          </p>
         </div>
 
-        <div data-reveal="right">
-          <p className="eyebrow rule-lead">01 / Filmography</p>
-          <h2 className="display section-title">THE ACTOR</h2>
-          <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
-            Stories he left behind.
-          </p>
-          <p className="section-copy mt-5">
-            From <em>Kai Po Che!</em> to <em>Dil Bechara</em>, he brought a restless,
-            unguarded honesty to every part he played. Eleven films in seven years.
-          </p>
+        <div
+          className="mt-4 flex flex-wrap items-baseline gap-x-8 gap-y-2 text-[10px] tracking-[.18em] text-[var(--paper-40)]"
+          data-reveal
+          style={{ "--delay": "0.06s" } as React.CSSProperties}
+        >
+          <span>{films.length} FILMS</span>
+          <span>{span}</span>
+          <span className="hidden md:inline">HOVER A STAR &middot; CLICK A TITLE FOR IMDB</span>
+        </div>
 
-          <div className="mt-10">
-            <FilmRail />
-          </div>
+        <div className="mt-10" data-reveal style={{ "--delay": "0.12s" } as React.CSSProperties}>
+          <FilmConstellation />
         </div>
       </div>
     </section>
