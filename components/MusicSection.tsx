@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/Icons";
-import { films, tmdbImage } from "@/data/films";
+import { films, filmLink, tmdbImage } from "@/data/films";
 import { songs, songArtwork, type Song } from "@/data/songs";
 
 /**
@@ -45,19 +45,45 @@ export function MusicSection() {
   if (!song) return null;
 
   return (
-    <section id="music" className="section border-y border-[var(--rule)] bg-[rgba(10,14,25,.72)]">
-      <div className="section-inner">
-        <div data-reveal>
-        <p className="eyebrow rule-lead">02 / Soundtrack</p>
-        <h2 className="display section-title">THE MUSIC</h2>
-        <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
-          His songs, his emotions.
-        </p>
-        <p className="section-copy mt-5">
-          Every soundtrack he was part of &mdash; {songs.length} songs across{" "}
-          {filmOrder.length} films. Each one plays from its rights holder&rsquo;s own channel.
-        </p>
+    <section id="music" className="section relative border-y border-[var(--rule)] bg-[rgba(10,14,25,.72)]">
+      {/* Music runs warm: an amber light from below, as off a stage. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_25%_100%,rgba(214,150,70,.13),transparent_70%)]"
+      />
+      <div className="section-inner relative">
+        <div className="grid items-end gap-8 md:grid-cols-[1fr_auto]" data-reveal>
+          <div>
+            <p className="eyebrow rule-lead">02 / Soundtrack</p>
+            <h2 className="display section-title">THE MUSIC</h2>
+            <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
+              His songs, his emotions.
+            </p>
+          </div>
+          {/* The size of the archive, as an object rather than a clause. */}
+          <div className="flex items-end gap-6 md:pb-2">
+            <p className="text-right">
+              <span className="display block text-[clamp(4rem,9vw,7.5rem)] font-light leading-[.8] [font-variant-numeric:lining-nums] text-[var(--gold)]">
+                {songs.length}
+              </span>
+              <span className="mt-3 block text-[10px] tracking-[.22em] text-[var(--paper-40)]">
+                SONGS
+              </span>
+            </p>
+            <p className="text-right">
+              <span className="display block text-[clamp(4rem,9vw,7.5rem)] font-light leading-[.8] [font-variant-numeric:lining-nums] text-[var(--paper)]/80">
+                {filmOrder.length}
+              </span>
+              <span className="mt-3 block text-[10px] tracking-[.22em] text-[var(--paper-40)]">
+                FILMS
+              </span>
+            </p>
+          </div>
         </div>
+        <p className="section-copy mt-6" data-reveal>
+          Every soundtrack he was part of. Each song plays from its rights
+          holder&rsquo;s own channel.
+        </p>
 
         {/* Film selector */}
         <div
@@ -170,7 +196,43 @@ export function MusicSection() {
             </div>
           </div>
 
-          {/* Tracks for the selected film */}
+          {/* The film heads its own track list, so the column carries the
+              same weight as the player beside it however few songs it has. */}
+          <div>
+          {(() => {
+            const f = films.find((x) => x.title === film);
+            return (
+              <div className="mb-6 flex items-end gap-5">
+                {f?.posterPath && (
+                  <a
+                    href={filmLink(f)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative block h-40 w-[6.8rem] shrink-0 overflow-hidden rounded-sm border border-[var(--rule-strong)] shadow-[0_18px_44px_rgba(0,0,0,.7)] transition duration-500 hover:-translate-y-1 hover:border-[var(--gold)]"
+                    title={`${f.title} on IMDb`}
+                  >
+                    <Image
+                      key={f.tmdbId}
+                      src={tmdbImage(f.posterPath, "w342")}
+                      alt=""
+                      fill
+                      sizes="110px"
+                      className="object-cover"
+                    />
+                  </a>
+                )}
+                <div className="min-w-0 pb-1">
+                  <p className="text-[10px] tracking-[.2em] text-[var(--gold)]">
+                    {f?.year} &middot; {tracks.length} {tracks.length === 1 ? "SONG" : "SONGS"}
+                  </p>
+                  <p className="display mt-2 text-3xl leading-tight">{film}</p>
+                  {f && (
+                    <p className="mt-1.5 text-xs text-[var(--paper-55)]">as {f.character}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
           <ol className="border-t border-[var(--rule)]">
             {tracks.map((track, i) => {
               const active = i === index;
@@ -203,6 +265,7 @@ export function MusicSection() {
               );
             })}
           </ol>
+          </div>
         </div>
 
         <p className="mt-6 text-[10px] leading-5 text-[var(--paper-40)]">
