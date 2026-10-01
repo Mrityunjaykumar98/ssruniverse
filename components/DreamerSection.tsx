@@ -28,6 +28,12 @@ export function DreamerSection() {
         aria-hidden
         className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,10,18,.9),rgba(11,16,32,.5)_32%,rgba(11,16,32,.5)_68%,rgba(7,10,18,.9))]"
       />
+      {/* The Dreamer is the section about space, so it is the one that looks
+          most like it: a violet nebula glow where the rest is plain night. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_85%_30%,rgba(120,90,210,.16),transparent_70%),radial-gradient(ellipse_45%_40%_at_10%_80%,rgba(70,120,220,.12),transparent_70%)]"
+      />
 
       <div className="section-inner relative">
         <div data-reveal>

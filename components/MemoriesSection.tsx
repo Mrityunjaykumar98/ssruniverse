@@ -104,8 +104,14 @@ export function MemoriesSection() {
   const embedId = showing ? playableId(showing) : null;
 
   return (
-    <section id="memories" className="section">
-      <div className="section-inner">
+    <section id="memories" className="section relative">
+      {/* Memories run in sepia: the warmth of old prints, never the cold
+          navy of the rest of the page. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_80%_0%,rgba(206,128,104,.10),transparent_70%),radial-gradient(ellipse_60%_50%_at_10%_100%,rgba(190,140,90,.07),transparent_70%)]"
+      />
+      <div className="section-inner relative">
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end" data-reveal>
           <div>
             <p className="eyebrow rule-lead">03 / Fragments</p>
