@@ -45,7 +45,7 @@ export function MusicSection() {
   if (!song) return null;
 
   return (
-    <section id="music" className="section border-y border-[var(--rule)] bg-[var(--ink-raised)]">
+    <section id="music" className="section border-y border-[var(--rule)] bg-[rgba(10,14,25,.72)]">
       <div className="section-inner">
         <div data-reveal>
         <p className="eyebrow rule-lead">02 / Soundtrack</p>
