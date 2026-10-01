@@ -1,4 +1,5 @@
 import { HeroParallax } from "@/components/HeroParallax";
+import { HeroPortrait } from "@/components/HeroPortrait";
 import { Photo } from "@/components/Photo";
 
 /* Deterministic field so server and client markup agree. */
@@ -66,14 +67,9 @@ export function Hero() {
         }}
       >
         <div className="relative h-full w-full">
-          <Photo
-            slug="dreamer"
-            alt="Sushant Singh Rajput at the International Film Festival of India, 2017"
-            fill
-            preload
-            sizes="(max-width: 768px) 100vw, 55vw"
-            className="scale-[1.18] object-cover object-[48%_10%] contrast-[1.05] saturate-[.72]"
-          />
+          {/* The photograph, rebuilt as a cloud of light that assembles out
+              of the field. Falls back to the flat photo where it can't run. */}
+          <HeroPortrait />
           {/* Cool the frame toward the sky, then sink its edges into the page. */}
           <div className="absolute inset-0 bg-[#0d1b33] mix-blend-color opacity-70" />
           <div className="absolute inset-0 bg-[linear-gradient(115deg,#04060c_0%,rgba(4,6,12,.72)_30%,transparent_62%)]" />
