@@ -15,7 +15,7 @@ export function MovieCarousel() {
             <h2 className="display section-title">THE ACTOR</h2>
           </div>
           <p className="display max-w-md pb-3 text-xl italic leading-snug text-[var(--paper-70)]">
-            Eleven films in seven years, drawn as he might have drawn them.
+            Eleven films in seven years, on a reel you can turn.
           </p>
         </div>
 
@@ -26,7 +26,7 @@ export function MovieCarousel() {
         >
           <span>{films.length} FILMS</span>
           <span>{span}</span>
-          <span className="hidden md:inline">HOVER TO LEAN A CARD &middot; CLICK TO OPEN ON IMDB</span>
+          <span className="hidden md:inline">DRAG, OR USE THE ARROWS &middot; CLICK THE FRONT FILM FOR IMDB</span>
         </div>
 
         <div className="mt-10" data-reveal style={{ "--delay": "0.12s" } as React.CSSProperties}>

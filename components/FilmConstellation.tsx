@@ -1,218 +1,244 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { Icon } from "@/components/Icons";
 import { films, filmLink, tmdbImage } from "@/data/films";
 
+/** Radius of the reel, in pixels. Larger reads flatter and calmer. */
+const RADIUS = 620;
+/** Angle between neighbouring films on the arc. */
+const STEP = 23;
+/** Cards past this many places from centre are not worth drawing. */
+const VISIBLE = 4;
+
 /**
- * Where each film hangs: position as a percentage of the plate, depth from 0
- * (far) to 1 (near), and a resting yaw so the cards face slightly inward
- * rather than all squarely at the viewer.
+ * The filmography as a reel curving through space.
  *
- * Placed by hand — a generated layout reads as a scatter plot, and the
- * overlaps here are deliberate: cards crossing at different depths are what
- * makes this a volume of space rather than a grid.
+ * Eleven posters cannot all be legible on a flat plane: small enough to fit
+ * and they are thumbnails, large enough to read and they occlude each other.
+ * An arc gives every film its own angular slot, so one is always face-on and
+ * clear while its neighbours turn away — no overlap to resolve, and the depth
+ * is real rather than implied.
+ *
+ * Every card is a link. Clicking a neighbour brings it to the front; clicking
+ * the film already at the front opens it.
  */
-const SKY: { x: number; y: number; z: number; yaw: number }[] = [
-  { x: 6, y: 48, z: 0.45, yaw: 20 }, //  Kai Po Che!          2013
-  { x: 15, y: 20, z: 0.75, yaw: 15 }, // Shuddh Desi Romance  2013
-  { x: 24, y: 74, z: 0.55, yaw: 12 }, // PK                   2014
-  { x: 33, y: 38, z: 0.28, yaw: 8 }, //  Detective Byomkesh   2015
-  { x: 43, y: 68, z: 0.95, yaw: 4 }, //  M.S. Dhoni           2016
-  { x: 52, y: 24, z: 0.5, yaw: -3 }, //  Raabta               2017
-  { x: 61, y: 60, z: 0.7, yaw: -8 }, //  Kedarnath            2018
-  // Three films in 2019, so they hang together as a knot.
-  { x: 70, y: 28, z: 0.38, yaw: -12 }, // Sonchiriya          2019
-  { x: 77, y: 66, z: 0.88, yaw: -15 }, // Chhichhore          2019
-  { x: 86, y: 32, z: 0.42, yaw: -18 }, // Drive               2019
-  { x: 94, y: 62, z: 0.62, yaw: -22 }, // Dil Bechara         2020
-];
-
 export function FilmConstellation() {
-  const [active, setActive] = useState<number | null>(null);
-  const plate = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  /** Pointer position within the live card, for the per-card tilt. */
-  const [local, setLocal] = useState({ x: 0, y: 0 });
+  const [active, setActive] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef<{ x: number; from: number } | null>(null);
+  const stage = useRef<HTMLDivElement>(null);
 
-  const onPlateMove = (e: React.MouseEvent) => {
-    const el = plate.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    setTilt({
-      x: (e.clientX - r.left) / r.width - 0.5,
-      y: (e.clientY - r.top) / r.height - 0.5,
-    });
+  const go = useCallback((next: number) => {
+    setActive(Math.max(0, Math.min(films.length - 1, next)));
+  }, []);
+
+  /* Arrow keys move along the reel whenever it holds focus. */
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(active - 1);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      go(active + 1);
+    }
   };
 
-  const onCardMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    setLocal({
-      x: (e.clientX - r.left) / r.width - 0.5,
-      y: (e.clientY - r.top) / r.height - 0.5,
-    });
-  };
+  /* Dragging scrubs the reel, one film per ~90px of travel. */
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => {
+      if (!drag.current) return;
+      go(drag.current.from - Math.round((e.clientX - drag.current.x) / 90));
+    };
+    const stop = () => {
+      setDragging(false);
+      drag.current = null;
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", stop);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", stop);
+    };
+  }, [dragging, go]);
+
+  const film = films[active];
 
   return (
     <div>
+      {/* The reel. Hidden from pointerless and narrow contexts, which get the
+          plain grid below instead. */}
       <div
-        ref={plate}
-        onMouseMove={onPlateMove}
-        onMouseLeave={() => {
-          setTilt({ x: 0, y: 0 });
-          setActive(null);
+        ref={stage}
+        role="group"
+        aria-label="Filmography reel"
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        onPointerDown={(e) => {
+          drag.current = { x: e.clientX, from: active };
+          setDragging(true);
         }}
-        className="relative hidden h-[36rem] w-full md:block"
-        style={{ perspective: "1500px", perspectiveOrigin: "50% 45%" }}
+        className={`relative hidden h-[30rem] w-full touch-pan-y select-none md:block ${
+          dragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
+        style={{ perspective: "1700px", perspectiveOrigin: "50% 42%" }}
       >
-        {/* Joining lines, behind the cards, in release order. */}
-        <svg
-          aria-hidden
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="absolute inset-0 h-full w-full"
+        <div
+          className="absolute inset-0"
+          style={{ transformStyle: "preserve-3d" }}
         >
-          {SKY.slice(0, -1).map((p, i) => {
-            const n = SKY[i + 1];
-            const lit = i === active || i + 1 === active;
+          {films.map((f, i) => {
+            const offset = i - active;
+            if (Math.abs(offset) > VISIBLE) return null;
+            const on = offset === 0;
+            const angle = offset * STEP;
+            // Depth falls away from centre so neighbours sit back, not just aside.
+            const depth = -Math.abs(offset) * 70;
+
             return (
-              <line
-                key={i}
-                x1={p.x}
-                y1={p.y}
-                x2={n.x}
-                y2={n.y}
-                stroke="currentColor"
-                // non-scaling-stroke makes this screen pixels, not user units.
-                strokeWidth={lit ? 1.5 : 0.75}
-                vectorEffect="non-scaling-stroke"
-                className={`transition-all duration-500 ${
-                  lit ? "text-[var(--gold)]/75" : "text-[var(--gold)]/20"
-                }`}
-              />
-            );
-          })}
-        </svg>
-
-        {films.map((film, i) => {
-          const p = SKY[i];
-          const on = active === i;
-          const dim = active !== null && !on;
-          const scale = 0.6 + p.z * 0.5;
-          // Nearer cards swing further with the pointer.
-          const dx = tilt.x * (16 + p.z * 50);
-          const dy = tilt.y * (9 + p.z * 28);
-          // At rest the card keeps its yaw; live, it leans toward the cursor.
-          const rotY = on ? p.yaw * 0.25 + local.x * -26 : p.yaw;
-          const rotX = on ? local.y * 20 : 4;
-
-          return (
-            <a
-              key={film.tmdbId}
-              href={filmLink(film)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseEnter={() => setActive(i)}
-              onMouseMove={onCardMove}
-              onFocus={() => setActive(i)}
-              onBlur={() => setActive(null)}
-              title={`${film.title} (${film.year}) — open on ${film.imdbId ? "IMDb" : "TMDB"}`}
-              className="group absolute block -translate-x-1/2 -translate-y-1/2"
-              style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
-                zIndex: on ? 50 : Math.round(p.z * 20),
-                transformStyle: "preserve-3d",
-                transform: `translate3d(${dx}px, ${dy}px, ${on ? 90 : p.z * 40 - 40}px)
-                            rotateY(${rotY}deg) rotateX(${rotX}deg) scale(${scale})`,
-                transition: on
-                  ? "transform .18s ease-out, opacity .4s"
-                  : "transform .7s cubic-bezier(.22,1,.36,1), opacity .4s",
-                opacity: dim ? 0.4 : 1,
-              }}
-            >
-              <span
-                className={`relative block h-44 w-[7.4rem] overflow-hidden rounded-[3px] border transition-colors duration-500 ${
-                  on ? "border-[var(--gold)]/80" : "border-[var(--rule-strong)]"
-                }`}
+              <a
+                key={f.tmdbId}
+                href={filmLink(f)}
+                target="_blank"
+                rel="noopener noreferrer"
+                tabIndex={on ? 0 : -1}
+                aria-hidden={!on}
+                title={`${f.title} (${f.year}) — open on ${f.imdbId ? "IMDb" : "TMDB"}`}
+                onClick={(e) => {
+                  // A neighbour is a seat on the reel, not a destination.
+                  if (!on) {
+                    e.preventDefault();
+                    go(i);
+                  }
+                }}
+                className="group absolute left-1/2 top-1/2 block"
                 style={{
                   transformStyle: "preserve-3d",
-                  // A long shadow cast away from the centre sells the depth.
-                  boxShadow: on
-                    ? "0 40px 90px rgba(0,0,0,.85), 0 0 50px rgba(201,166,100,.22)"
-                    : "0 18px 44px rgba(0,0,0,.72)",
+                  transform: `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${
+                    RADIUS + depth
+                  }px) scale(${on ? 1 : 0.9})`,
+                  transition: dragging
+                    ? "transform .25s ease-out"
+                    : "transform .65s cubic-bezier(.22,1,.36,1)",
+                  zIndex: 40 - Math.abs(offset),
                 }}
               >
-                {film.posterPath ? (
-                  <Image
-                    src={tmdbImage(film.posterPath, "w342")}
-                    alt=""
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <span className="grid h-full place-items-center bg-[var(--card)] px-1.5 text-center">
-                    <span className="display text-xs leading-tight">{film.title}</span>
-                  </span>
-                )}
-
-                {/* Distance haze: far cards sit back, the live one clears. */}
                 <span
-                  aria-hidden
-                  className="absolute inset-0 bg-[#0b1324] transition-opacity duration-500"
-                  style={{ opacity: on ? 0 : 0.52 - p.z * 0.28 }}
-                />
-
-                {/* Specular sweep that tracks the tilt, so the card reads as a
-                    physical surface catching light rather than a flat image. */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 transition-opacity duration-300"
+                  className={`relative block h-[21rem] w-56 overflow-hidden rounded-sm border transition-all duration-500 ${
+                    on ? "border-[var(--gold)]/70" : "border-[var(--rule-strong)]"
+                  }`}
                   style={{
-                    opacity: on ? 1 : 0,
-                    background: `linear-gradient(${105 + local.x * 60}deg, transparent ${
-                      34 + local.x * 26
-                    }%, rgba(255,250,235,.26) ${50 + local.x * 26}%, transparent ${
-                      66 + local.x * 26
-                    }%)`,
+                    boxShadow: on
+                      ? "0 50px 110px rgba(0,0,0,.9), 0 0 70px rgba(201,166,100,.2)"
+                      : "0 26px 60px rgba(0,0,0,.8)",
                   }}
-                />
-              </span>
-
-              {/* Year always, so no card is ever anonymous. */}
-              <span
-                className={`absolute left-1/2 top-full mt-2.5 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[.18em] transition-colors duration-300 ${
-                  on ? "text-[var(--gold)]" : "text-[var(--paper-40)]"
-                }`}
-              >
-                {film.year}
-              </span>
-              {/* Title and role lift in on the live card. */}
-              <span
-                className={`pointer-events-none absolute left-1/2 top-full mt-7 w-48 -translate-x-1/2 text-center transition-all duration-300 ${
-                  on ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"
-                }`}
-              >
-                <span className="display block text-base leading-tight">{film.title}</span>
-                <span className="mt-0.5 block text-[10px] text-[var(--paper-55)]">
-                  as {film.character}
+                >
+                  {f.posterPath ? (
+                    <Image
+                      src={tmdbImage(f.posterPath, "w500")}
+                      alt=""
+                      fill
+                      sizes="320px"
+                      className="object-cover"
+                      priority={Math.abs(offset) <= 1}
+                    />
+                  ) : (
+                    <span className="grid h-full place-items-center bg-[var(--card)] px-2 text-center">
+                      <span className="display text-base leading-tight">{f.title}</span>
+                    </span>
+                  )}
+                  {/* Turned-away cards fall into shadow. */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 bg-[#060912] transition-opacity duration-500"
+                    style={{ opacity: on ? 0 : 0.28 + Math.abs(offset) * 0.14 }}
+                  />
                 </span>
-              </span>
-            </a>
-          );
-        })}
+              </a>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Mobile, and the plain index for anyone not using a pointer. */}
+      {/* The film at the front, named once, below the reel. */}
+      <div className="mt-2 hidden md:block">
+        <div className="flex items-end justify-between gap-6">
+          <div className="min-w-0">
+            <p className="display text-3xl leading-tight">{film.title}</p>
+            <p className="mt-1.5 text-sm text-[var(--paper-55)]">
+              {film.year} &middot; as {film.character}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => go(active - 1)}
+              disabled={active === 0}
+              aria-label="Previous film"
+              className="grid h-11 w-11 place-items-center rounded-full border border-[var(--rule-strong)] text-[var(--paper-55)] transition enabled:hover:border-[var(--gold)] enabled:hover:text-[var(--gold)] disabled:opacity-25"
+            >
+              <Icon name="arrow" className="h-4 w-4 rotate-180" />
+            </button>
+            <span className="w-16 text-center text-[11px] tracking-[.16em] text-[var(--paper-40)]">
+              {String(active + 1).padStart(2, "0")} / {films.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => go(active + 1)}
+              disabled={active === films.length - 1}
+              aria-label="Next film"
+              className="grid h-11 w-11 place-items-center rounded-full border border-[var(--rule-strong)] text-[var(--paper-55)] transition enabled:hover:border-[var(--gold)] enabled:hover:text-[var(--gold)] disabled:opacity-25"
+            >
+              <Icon name="arrow" className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* A year scrubber, so the whole span is visible at once and any film
+            is one click away rather than several. */}
+        <ul className="mt-6 flex items-stretch gap-px border-t border-[var(--rule)]">
+          {films.map((f, i) => (
+            <li key={f.tmdbId} className="flex-1">
+              <button
+                type="button"
+                onClick={() => go(i)}
+                aria-label={`${f.title}, ${f.year}`}
+                aria-current={i === active}
+                className="group block w-full pt-3 text-left"
+              >
+                <span
+                  className={`block h-px w-full transition-all duration-500 ${
+                    i === active
+                      ? "h-0.5 bg-[var(--gold)]"
+                      : "bg-[var(--rule-strong)] group-hover:bg-[var(--gold)]/60"
+                  }`}
+                />
+                <span
+                  className={`mt-2 block text-[10px] tracking-[.1em] transition-colors ${
+                    i === active ? "text-[var(--gold)]" : "text-[var(--paper-40)]"
+                  }`}
+                >
+                  {f.year}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Mobile, and the route for anyone without a pointer. */}
       <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:hidden">
-        {films.map((film) => (
-          <li key={film.tmdbId}>
-            <a href={filmLink(film)} target="_blank" rel="noopener noreferrer" className="block">
+        {films.map((f) => (
+          <li key={f.tmdbId}>
+            <a href={filmLink(f)} target="_blank" rel="noopener noreferrer" className="block">
               <span className="relative block aspect-[2/3] overflow-hidden rounded-sm border border-[var(--rule)]">
-                {film.posterPath && (
+                {f.posterPath && (
                   <Image
-                    src={tmdbImage(film.posterPath, "w342")}
+                    src={tmdbImage(f.posterPath, "w342")}
                     alt=""
                     fill
                     sizes="33vw"
@@ -220,8 +246,8 @@ export function FilmConstellation() {
                   />
                 )}
               </span>
-              <span className="mt-2 block text-xs leading-tight">{film.title}</span>
-              <span className="mt-0.5 block text-[10px] text-[var(--paper-40)]">{film.year}</span>
+              <span className="mt-2 block text-xs leading-tight">{f.title}</span>
+              <span className="mt-0.5 block text-[10px] text-[var(--paper-40)]">{f.year}</span>
             </a>
           </li>
         ))}
