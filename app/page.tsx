@@ -1,4 +1,5 @@
 import { DreamerSection } from "@/components/DreamerSection";
+import { Ending } from "@/components/Ending";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { MemoriesSection } from "@/components/MemoriesSection";
@@ -28,6 +29,7 @@ export default function Home() {
         <DreamerSection />
         <Timeline />
         <RandomMemory />
+        <Ending />
       </main>
       <Footer />
     </>
