@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Photo, PhotoCredit } from "@/components/Photo";
 import {
@@ -79,9 +80,41 @@ export function MemoriesSection() {
     [index, shown],
   );
 
+  /** True while a history entry for the open lightbox is on the stack. */
+  const pushed = useRef(false);
+
+  /**
+   * Opening pushes a history entry, so the browser's Back button — the way
+   * most people leave anything on a phone — closes the lightbox instead of
+   * taking them off the site.
+   */
+  const openMoment = useCallback((id: string) => {
+    if (!pushed.current) {
+      history.pushState({ ssrLightbox: true }, "");
+      pushed.current = true;
+    }
+    setWatching(false);
+    setOpen(id);
+  }, []);
+
+  /** Closing from the page pops that entry, so history stays as it was. */
   const close = useCallback(() => {
+    if (pushed.current) {
+      history.back(); // popstate below does the actual closing
+      return;
+    }
     setOpen(null);
     setWatching(false);
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      pushed.current = false;
+      setOpen(null);
+      setWatching(false);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
   useEffect(() => {
@@ -168,10 +201,7 @@ export function MemoriesSection() {
             <li key={moment.id} className={moment.feature ? "col-span-2" : undefined}>
               <button
                 type="button"
-                onClick={() => {
-                  setOpen(moment.id);
-                  setWatching(false);
-                }}
+                onClick={() => openMoment(moment.id)}
                 className="group relative h-full w-full overflow-hidden rounded-sm border border-[var(--rule)] text-left transition hover:border-[var(--gold)]"
               >
                 <Thumb moment={moment} />
@@ -195,7 +225,8 @@ export function MemoriesSection() {
         </ul>
       </div>
 
-      {showing && (
+      {showing &&
+        createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -320,8 +351,9 @@ export function MemoriesSection() {
               </button>
             ),
           )}
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </section>
   );
 }
