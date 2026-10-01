@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/Icons";
-import { Photo } from "@/components/Photo";
 import { dreams, featured } from "@/data/dreams";
 
 const thumb = (id: string) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
@@ -22,13 +21,13 @@ export function DreamerSection() {
   const [featurePlaying, setFeaturePlaying] = useState(false);
 
   return (
-    <section id="dreamer" className="section relative overflow-hidden bg-[var(--navy)]">
-      {/* The same deep-space plate as the hero, held back so the section
-          reads as a continuation of it rather than a repeat. */}
-      <div aria-hidden className="absolute inset-0">
-        <Photo slug="cosmos" alt="" fill sizes="100vw" className="object-cover opacity-25" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--ink),rgba(11,16,32,.84)_38%,var(--ink))]" />
-      </div>
+    <section id="dreamer" className="section relative overflow-hidden bg-[rgba(11,16,32,.66)]">
+      {/* No plate of its own any more: the live starfield is the ground. Just
+          enough of a wash to keep the type legible over it. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,10,18,.9),rgba(11,16,32,.5)_32%,rgba(11,16,32,.5)_68%,rgba(7,10,18,.9))]"
+      />
 
       <div className="section-inner relative">
         <div data-reveal>
