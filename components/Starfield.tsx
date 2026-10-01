@@ -4,6 +4,21 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+/**
+ * A seeded generator, so the field is identical on every render and between
+ * server and client. Math.random in a useMemo would reshuffle every star if
+ * the memo ever re-ran, and React's purity rule rightly refuses it.
+ */
+function mulberry32(seed: number) {
+  return () => {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 /** How deep the field is. Stars wrap within this distance, so it never ends. */
 const DEPTH = 220;
 const NEAR = 6;
@@ -22,19 +37,20 @@ function Stars({ count, travel }: { count: number; travel: React.RefObject<numbe
     const sizes = new Float32Array(count);
     const tints = new Float32Array(count);
     const spread = 150;
+    const rand = mulberry32(0x5f3a21);
 
     for (let i = 0; i < count; i++) {
       // Hollow out the centre so stars do not sit on top of the camera.
-      const r = 12 + Math.pow(Math.random(), 0.6) * spread;
-      const theta = Math.random() * Math.PI * 2;
+      const r = 12 + Math.pow(rand(), 0.6) * spread;
+      const theta = rand() * Math.PI * 2;
       positions[i * 3] = Math.cos(theta) * r;
       positions[i * 3 + 1] = (Math.sin(theta) * r) / 1.7;
-      positions[i * 3 + 2] = -Math.random() * DEPTH;
+      positions[i * 3 + 2] = -rand() * DEPTH;
 
       // A few large stars carry the field; most are dust.
-      sizes[i] = Math.random() < 0.025 ? 2.0 + Math.random() * 1.4 : 0.45 + Math.random() * 0.85;
+      sizes[i] = rand() < 0.025 ? 2.0 + rand() * 1.4 : 0.45 + rand() * 0.85;
       // Mostly cold white, a minority gold, matching the palette.
-      tints[i] = Math.random() < 0.16 ? 1 : 0;
+      tints[i] = rand() < 0.16 ? 1 : 0;
     }
 
     const g = new THREE.BufferGeometry();
@@ -132,8 +148,8 @@ function Stars({ count, travel }: { count: number; travel: React.RefObject<numbe
 
 /** Nudges the camera with the pointer so the field has parallax, not just drift. */
 function CameraRig() {
-  const { camera, pointer } = useThree();
-  useFrame(() => {
+  useFrame((state) => {
+    const { camera, pointer } = state;
     camera.position.x += (pointer.x * 1.4 - camera.position.x) * 0.03;
     camera.position.y += (pointer.y * 0.9 - camera.position.y) * 0.03;
     camera.lookAt(0, 0, -40);
@@ -150,8 +166,8 @@ function CameraRig() {
  */
 export function Starfield() {
   const travel = useRef(0);
-  const [enabled, setEnabled] = useState(false);
-  const [count, setCount] = useState(9000);
+  /** null until the client has decided; a number once the field is wanted. */
+  const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -160,8 +176,10 @@ export function Starfield() {
     const cores = navigator.hardwareConcurrency ?? 4;
     const small = window.innerWidth < 760;
     if (small && cores <= 4) return;
+    // Deciding this during render would mean reading window on the server and
+    // mismatching on hydration, so it has to happen once, after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCount(small ? 4500 : cores >= 8 ? 14000 : 9000);
-    setEnabled(true);
 
     let frame = 0;
     const onScroll = () => {
@@ -180,7 +198,7 @@ export function Starfield() {
     };
   }, []);
 
-  if (!enabled) return null;
+  if (count === null) return null;
 
   return (
     <div
