@@ -210,6 +210,14 @@ export function Starfield() {
         dpr={[1, 2]}
         gl={{ antialias: false, powerPreference: "high-performance", alpha: true }}
         camera={{ fov: 70, near: 0.1, far: 400, position: [0, 0, 0] }}
+        // Read the pointer from the whole page rather than from the canvas.
+        // Left to itself the canvas re-enables pointer events on its own
+        // element, which swallowed every click on the footer beneath it, and
+        // the parallax only ever saw the pointer there, since the page covers
+        // the canvas everywhere else. With an event source it stays inert.
+        // Mounted only after the client check above, so document exists.
+        eventSource={document.body}
+        eventPrefix="client"
         // Pause entirely when the tab is hidden.
         frameloop="always"
       >
