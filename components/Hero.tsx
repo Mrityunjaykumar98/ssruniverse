@@ -126,22 +126,6 @@ export function Hero() {
             </span>
           </a>
         </div>
-
-        {/* Margin quote — steps aside below xl. The wrapper owns the
-            centering transform, since .rise resets transform when it lands. */}
-        <div className="absolute bottom-20 right-8 hidden w-60 xl:block">
-        <figure
-          className="rise rounded-sm bg-[rgba(4,6,12,.42)] p-4 backdrop-blur-[2px]"
-          style={{ "--delay": "0.85s" } as React.CSSProperties}
-        >
-          <blockquote className="display text-lg italic leading-relaxed text-[var(--paper)] [text-shadow:0_2px_18px_rgba(4,6,12,.95)]">
-            &ldquo;The sky is not the limit, it&rsquo;s just the beginning.&rdquo;
-          </blockquote>
-          <figcaption className="mt-3 text-[10px] tracking-[.16em] text-[var(--paper-55)]">
-            &mdash; SUSHANT SINGH RAJPUT
-          </figcaption>
-        </figure>
-        </div>
       </div>
     </section>
   );

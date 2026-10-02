@@ -30,29 +30,23 @@ export function Footer() {
             <p className="mt-2 text-xs text-[var(--paper-40)]">
               A place to remember. A universe to explore.
             </p>
+          </div>
+
+          {/* His own hand, in place of a quotation: only sourced words of his
+              appear on this site, and the sourced ones live in the page. */}
+          <div className="flex justify-center">
             <Image
               src="/images/signature.svg"
               alt="Sushant Singh Rajput's signature"
-              width={160}
-              height={79}
+              width={200}
+              height={99}
               // Next refuses SVG through the image optimizer unless
               // dangerouslyAllowSVG is set globally; this file is trusted and
               // needs no resizing, so skip the optimizer instead.
               unoptimized
-              className="mt-6 opacity-45 invert"
+              className="opacity-55 invert"
             />
           </div>
-
-          <figure className="m-0 text-center">
-            <blockquote className="display text-xl italic leading-relaxed text-[var(--paper-70)]">
-              &ldquo;Live your dreams,
-              <br />
-              keep your curiosity alive.&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-[10px] tracking-[.16em] text-[var(--paper-40)]">
-              &mdash; SUSHANT SINGH RAJPUT
-            </figcaption>
-          </figure>
 
           <div className="md:text-right">
             <p className="text-[10px] font-bold tracking-[.18em] text-[var(--paper-55)]">
