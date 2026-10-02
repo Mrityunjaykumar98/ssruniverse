@@ -148,6 +148,9 @@ export function MemoriesSection() {
     };
   }, [showing, step, close]);
 
+  /** Any one print from the wall as it is currently filtered. */
+  const surprise = () => openMoment(shown[Math.floor(Math.random() * shown.length)].id);
+
   const playableCount = moments.filter((m) => playableId(m)).length;
   const embedId = showing ? playableId(showing) : null;
 
@@ -178,37 +181,50 @@ export function MemoriesSection() {
           </p>
         </div>
 
-        <div
-          className="rail mt-10 flex gap-2 overflow-x-auto pb-2"
-          role="tablist"
-          aria-label="Filter moments"
-        >
-          {categories.map(({ id, label, note }) => {
-            const active = id === filter;
-            const count =
-              id === "all" ? moments.length : moments.filter((m) => m.category === id).length;
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                title={note}
-                onClick={() => {
-                  setFilter(id);
-                  close();
-                }}
-                className={`shrink-0 rounded-full border px-4 py-2 text-[11px] tracking-[.08em] transition ${
-                  active
-                    ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
-                    : "border-[var(--rule-strong)] text-[var(--paper-55)] hover:border-[var(--gold)]/60 hover:text-[var(--paper)]"
-                }`}
-              >
-                {label}
-                <span className="ml-2 opacity-50">{count}</span>
-              </button>
-            );
-          })}
+        {/* The filters scroll; the shuffle stays put beside them. */}
+        <div className="mt-10 flex items-start gap-3">
+          <div
+            className="rail flex min-w-0 flex-1 gap-2 overflow-x-auto pb-2"
+            role="tablist"
+            aria-label="Filter moments"
+          >
+            {categories.map(({ id, label, note }) => {
+              const active = id === filter;
+              const count =
+                id === "all" ? moments.length : moments.filter((m) => m.category === id).length;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  title={note}
+                  onClick={() => {
+                    setFilter(id);
+                    close();
+                  }}
+                  className={`shrink-0 rounded-full border px-4 py-2 text-[11px] tracking-[.08em] transition ${
+                    active
+                      ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                      : "border-[var(--rule-strong)] text-[var(--paper-55)] hover:border-[var(--gold)]/60 hover:text-[var(--paper)]"
+                  }`}
+                >
+                  {label}
+                  <span className="ml-2 [font-variant-numeric:lining-nums_tabular-nums]">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={surprise}
+            title="Open a memory at random"
+            className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-[var(--gold)] text-[11px] font-bold tracking-[.14em] text-[var(--ink)] transition hover:bg-[var(--gold-bright)] sm:flex sm:w-auto sm:gap-1.5 sm:px-4"
+          >
+            <span aria-hidden>✦</span>
+            {/* On a phone the filters need the row; the star alone will do. */}
+            <span className="sr-only sm:not-sr-only">SURPRISE ME</span>
+          </button>
         </div>
 
         {/* A wall of prints rather than a grid of tiles: memories should look
@@ -246,7 +262,7 @@ export function MemoriesSection() {
                   >
                     <Thumb moment={moment} />
                     {playableId(moment) && (
-                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,16,12,.72)] px-2.5 py-1 text-[9px] font-bold tracking-[.16em] text-[#f3e7cf] backdrop-blur-sm">
+                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,16,12,.72)] px-2.5 py-1 text-[10px] font-bold tracking-[.16em] text-[#f3e7cf] backdrop-blur-sm">
                         <PlayGlyph className="h-2.5 w-2.5" />
                         {video ? "FILM" : "FOOTAGE"}
                       </span>

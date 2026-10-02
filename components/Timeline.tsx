@@ -91,7 +91,7 @@ export function Timeline() {
                         </span>
                         <span className="text-[10px] tracking-[.16em] text-[var(--paper-40)] transition group-hover:text-[var(--gold)]">
                           {film.title.toUpperCase()}
-                          <span className="mt-1 block opacity-60">ON IMDB &rarr;</span>
+                          <span className="mt-1 block">ON IMDB &rarr;</span>
                         </span>
                       </a>
                     )}

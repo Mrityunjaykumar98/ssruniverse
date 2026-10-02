@@ -26,8 +26,11 @@
   /* Text */
   --paper: #f6f2e9;
   --paper-70: rgba(246, 242, 233, 0.7);
-  --paper-55: rgba(246, 242, 233, 0.55);
-  --paper-40: rgba(246, 242, 233, 0.4);
+  /* The names are historical. The two quietest steps were lifted so that
+     even the smallest tracked labels clear WCAG AA (4.5:1) on ink:
+     paper-55 is 6.6:1, paper-40 is 5.2:1. */
+  --paper-55: rgba(246, 242, 233, 0.6);
+  --paper-40: rgba(246, 242, 233, 0.52);
 
   /* Lines */
   --rule: rgba(246, 242, 233, 0.12);
@@ -62,7 +65,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: inherit; text-decoration: none; }
+/* Layered, so text-colour utilities on a link win over it. Unlayered, this
+   rule outranked every Tailwind class and turned all links the parent's
+   colour: the menu lost its dimmed inactive items, the hero arrow its gold. */
+@layer base {
+  a { color: inherit; text-decoration: none; }
+}
 
 /* ============================================================
    Type primitives

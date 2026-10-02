@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { getImageProps } from "next/image";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -31,6 +32,24 @@ type Cloud = {
   aspect: number;
   step: number;
 };
+
+/**
+ * The smallest optimised rendition at least SAMPLE_W wide. Sampling only
+ * needs that many pixels, and the original is several times larger: loading
+ * it raw cost a megabyte on every visit.
+ */
+function sampleSrc(src: string): string {
+  const { srcSet } = getImageProps({ src, alt: "", fill: true, sizes: `${SAMPLE_W}px` }).props;
+  const candidates = (srcSet ?? "")
+    .split(", ")
+    .map((entry) => {
+      const [url, w] = entry.split(" ");
+      return { url, w: parseInt(w, 10) };
+    })
+    .filter((c) => c.url && c.w >= SAMPLE_W)
+    .sort((a, b) => a.w - b.w);
+  return candidates[0]?.url ?? src;
+}
 
 /**
  * Samples the photograph on a fine grid, grading each dot exactly as the CSS
@@ -315,7 +334,7 @@ export function ParticlePortrait({
 
     let cancelled = false;
     const img = new window.Image();
-    img.src = src;
+    img.src = sampleSrc(src);
     img.onload = () => {
       if (cancelled) return;
       setCloud(buildCloud(img, window.innerWidth < 900 ? STEP_MOBILE : STEP_DESKTOP));

@@ -93,7 +93,7 @@ function Turntable({
             playing ? "bg-[#f0b25c] shadow-[0_0_10px_#f0b25c]" : "bg-[#3a3328]"
           }`}
         />
-        <span className="text-[9px] font-bold tracking-[.2em] text-[#8a7e69]">33⅓ RPM</span>
+        <span className="text-[10px] font-bold tracking-[.2em] text-[#a39782]">33⅓ RPM</span>
       </div>
     </div>
   );

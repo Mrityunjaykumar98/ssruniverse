@@ -1,14 +1,10 @@
 import Image from "next/image";
-import { Icon, type IconName } from "@/components/Icons";
 import { PhotoCredit } from "@/components/Photo";
+import { ShareButtons } from "@/components/ShareButtons";
 import { credits, type CreditSlug } from "@/data/credits";
+import { siteUrl } from "@/data/site";
 
-const socials: { icon: IconName; label: string; href: string }[] = [
-  { icon: "youtube", label: "YouTube", href: "https://www.youtube.com/results?search_query=sushant+singh+rajput" },
-  { icon: "instagram", label: "Instagram", href: "https://www.instagram.com/explore/tags/sushantsinghrajput/" },
-  { icon: "x", label: "X", href: "https://x.com/search?q=%23SushantSinghRajput" },
-  { icon: "link", label: "Wikipedia", href: "https://en.wikipedia.org/wiki/Sushant_Singh_Rajput" },
-];
+const hashtags = ["SushantSinghRajput", "ForeverInOurHearts"];
 
 /* The signature is public domain; the rest need their author shown. */
 const photoSlugs = (Object.keys(credits) as CreditSlug[]).filter(
@@ -30,51 +26,41 @@ export function Footer() {
             <p className="mt-2 text-xs text-[var(--paper-40)]">
               A place to remember. A universe to explore.
             </p>
+          </div>
+
+          {/* His own hand, in place of a quotation: only sourced words of his
+              appear on this site, and the sourced ones live in the page. */}
+          <div className="flex justify-center">
             <Image
               src="/images/signature.svg"
               alt="Sushant Singh Rajput's signature"
-              width={160}
-              height={79}
+              width={200}
+              height={99}
               // Next refuses SVG through the image optimizer unless
               // dangerouslyAllowSVG is set globally; this file is trusted and
               // needs no resizing, so skip the optimizer instead.
               unoptimized
-              className="mt-6 opacity-45 invert"
+              className="opacity-55 invert"
             />
           </div>
-
-          <figure className="m-0 text-center">
-            <blockquote className="display text-xl italic leading-relaxed text-[var(--paper-70)]">
-              &ldquo;Live your dreams,
-              <br />
-              keep your curiosity alive.&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-[10px] tracking-[.16em] text-[var(--paper-40)]">
-              &mdash; SUSHANT SINGH RAJPUT
-            </figcaption>
-          </figure>
 
           <div className="md:text-right">
             <p className="text-[10px] font-bold tracking-[.18em] text-[var(--paper-55)]">
               SHARE HIS STORY
             </p>
-            <ul className="mt-4 flex gap-3 md:justify-end">
-              {socials.map(({ icon, label, href }) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-[var(--rule-strong)] text-[var(--paper-55)] transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
-                  >
-                    <span className="sr-only">{label}</span>
-                    <Icon name={icon} className="h-4 w-4" />
-                  </a>
-                </li>
+            <ShareButtons url={siteUrl.href} />
+            <p className="mt-3 flex gap-4 text-[10px] tracking-[.14em] md:justify-end">
+              {hashtags.map((tag) => (
+                <a
+                  key={tag}
+                  href={`https://x.com/hashtag/${tag}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--gold)]/80 transition hover:text-[var(--gold-bright)]"
+                >
+                  #{tag}
+                </a>
               ))}
-            </ul>
-            <p className="mt-5 text-[10px] tracking-[.14em] text-[var(--gold)]/70">
-              #SushantSinghRajput &nbsp; #ForeverInOurHearts
             </p>
           </div>
         </div>
