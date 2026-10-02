@@ -39,7 +39,7 @@ export const screenings: Screening[] = [
   },
   {
     youtubeId: "alBvlAY-hrM",
-    title: "Pavitra Rishta — Episode 1",
+    title: "Pavitra Rishta — Episode 1",
     year: "2009",
     kind: "Television",
     runtime: "34m",

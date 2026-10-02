@@ -7,7 +7,7 @@ const TEXT = "SSR Universe — a fan-made tribute to Sushant Singh Rajput. Keep 
 const HASHTAGS = ["SushantSinghRajput", "ForeverInOurHearts"];
 
 const circle =
-  "grid h-10 w-10 place-items-center rounded-full border border-[var(--rule-strong)] text-[var(--paper-55)] transition hover:border-[var(--gold)] hover:text-[var(--gold)] focus-visible:border-[var(--gold)] focus-visible:text-[var(--gold)]";
+  "grid h-11 w-11 place-items-center rounded-full border border-[var(--rule-strong)] text-[var(--paper-55)] transition hover:border-[var(--gold)] hover:text-[var(--gold)] focus-visible:border-[var(--gold)] focus-visible:text-[var(--gold)]";
 
 /**
  * Shares the site itself. Each network gets its own share intent; Instagram
