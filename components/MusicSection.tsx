@@ -147,7 +147,7 @@ export function MusicSection() {
       <div className="section-inner relative">
         <div className="grid items-end gap-8 md:grid-cols-[1fr_auto]" data-reveal>
           <div>
-            <p className="eyebrow rule-lead">02 / Soundtrack</p>
+            <p className="eyebrow rule-lead">Soundtrack</p>
             <h2 className="display section-title">THE MUSIC</h2>
             <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
               Every soundtrack, on vinyl.

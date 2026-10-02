@@ -165,7 +165,7 @@ export function MemoriesSection() {
       <div className="section-inner relative">
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end" data-reveal>
           <div>
-            <p className="eyebrow rule-lead">03 / Fragments</p>
+            <p className="eyebrow rule-lead">Fragments</p>
             <h2 className="display section-title">THE MEMORIES</h2>
             <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
               The Sushant we loved.

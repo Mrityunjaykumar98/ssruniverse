@@ -11,7 +11,7 @@ export function MovieCarousel() {
       <div className="section-inner">
         <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-end md:gap-12" data-reveal>
           <div>
-            <p className="eyebrow rule-lead">01 / Filmography</p>
+            <p className="eyebrow rule-lead">Filmography</p>
             <h2 className="display section-title">THE ACTOR</h2>
           </div>
           <p className="display max-w-md pb-3 text-xl italic leading-snug text-[var(--paper-70)]">
