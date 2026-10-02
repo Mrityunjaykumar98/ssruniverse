@@ -7,6 +7,7 @@ import { MemoriesSection } from "@/components/MemoriesSection";
 import { MovieCarousel } from "@/components/MovieCarousel";
 import { MusicSection } from "@/components/MusicSection";
 import { RandomMemory } from "@/components/RandomMemory";
+import { ScreeningRoom } from "@/components/ScreeningRoom";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Starfield } from "@/components/Starfield";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -25,6 +26,7 @@ export default function Home() {
       <main className="relative z-10">
         <Hero />
         <MovieCarousel />
+        <ScreeningRoom />
         <MusicSection />
         {/* Sourced: his acceptance speech, on the Screen Awards' own channel. */}
         <InHisWords
