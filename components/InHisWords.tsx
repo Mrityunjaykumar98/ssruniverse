@@ -38,7 +38,7 @@ export function InHisWords({
       : "bg-[radial-gradient(ellipse_at_70%_50%,rgba(120,150,220,.1),transparent_60%)]";
 
   return (
-    <section aria-label="In his words" className="relative overflow-hidden px-5 py-24 md:px-8 md:py-32">
+    <section aria-label="In his words" className="relative overflow-hidden px-5 py-16 md:px-8 md:py-20">
       <div aria-hidden className={`absolute inset-0 ${glow}`} />
 
       <figure className="relative mx-auto max-w-5xl">

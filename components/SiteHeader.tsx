@@ -27,12 +27,35 @@ export function SiteHeader() {
       .map(({ id }) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
+    /* The address follows the reader, so a copied URL lands where they
+       were. Only once they have scrolled themselves: on arrival at a shared
+       /#music the first report is still "top", and writing it would wipe
+       the hash before the browser has jumped to it. */
+    let reading = false;
+    const startReading = () => {
+      reading = true;
+    };
+    const intents = ["wheel", "touchmove", "keydown", "pointerdown"] as const;
+    intents.forEach((type) => window.addEventListener(type, startReading, { once: true, passive: true }));
+
+    const follow = (id: string) => {
+      if (!reading) return;
+      const hash = id === "top" ? "" : `#${id}`;
+      if (window.location.hash === hash) return;
+      // Replace rather than push: scrolling past six sections should not
+      // take six presses of Back to undo. history.state is passed through
+      // so Next's router state, and an open lightbox's entry, survive.
+      history.replaceState(history.state, "", `${location.pathname}${location.search}${hash}`);
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (visible) setActive(visible.target.id);
+        if (!visible) return;
+        setActive(visible.target.id);
+        follow(visible.target.id);
       },
       { rootMargin: "-20% 0px -70% 0px" },
     );
@@ -40,6 +63,7 @@ export function SiteHeader() {
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      intents.forEach((type) => window.removeEventListener(type, startReading));
       observer.disconnect();
     };
   }, []);
