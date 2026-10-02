@@ -200,6 +200,22 @@ a { color: inherit; text-decoration: none; }
   transform: none;
 }
 
+/* "words": the container stays put and its words arrive one at a time,
+   each lifting out of a blur on its own delay. */
+[data-reveal="words"] { opacity: 1; transform: none; }
+.words > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.35em);
+  filter: blur(8px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0s);
+}
+[data-reveal-in] .words > span { opacity: 1; transform: none; filter: none; }
+
 /* The timeline spine draws itself left to right as it arrives. */
 .spine {
   transform-origin: left center;
@@ -261,6 +277,249 @@ a { color: inherit; text-decoration: none; }
   animation:
     star-rise 1.9s cubic-bezier(0.22, 1, 0.36, 1) both,
     twinkle calc(3s + var(--s, 1) * 2s) ease-in-out 1.9s infinite;
+}
+
+/* Memory prints. Cream stock with a deep bottom margin for the caption,
+   hung at an angle; picking one up straightens it and lifts it forward. */
+.print {
+  padding: 0.6rem 0.6rem 0.4rem;
+  background: linear-gradient(180deg, #f6efe2, #ece2cf);
+  border-radius: 2px;
+  transform: rotate(var(--r, 0deg));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 14px 30px -10px rgba(0, 0, 0, 0.85),
+    0 4px 10px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.print:hover,
+.print:focus-visible {
+  transform: rotate(0deg) translateY(-8px) scale(1.035);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 34px 60px -16px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(201, 166, 100, 0.55),
+    0 0 40px rgba(201, 166, 100, 0.18);
+  z-index: 2;
+}
+/* A strip of translucent tape across the top edge. */
+.print-tape {
+  position: absolute;
+  top: -0.7rem;
+  left: 50%;
+  z-index: 1;
+  width: 4.6rem;
+  height: 1.35rem;
+  margin-left: -2.3rem;
+  background: rgba(236, 225, 196, 0.55);
+  border-left: 1px dashed rgba(255, 255, 255, 0.25);
+  border-right: 1px dashed rgba(255, 255, 255, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transform: rotate(var(--tr, 0deg));
+  backdrop-filter: blur(1px);
+}
+
+/* ============================================================
+   The turntable
+   ============================================================ */
+.turntable {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 240, 210, 0.06), transparent 60%),
+    linear-gradient(160deg, #2a2420 0%, #1a1613 55%, #120f0d 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 235, 200, 0.08) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.6) inset,
+    0 40px 80px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* Grooves: fine concentric rings, so the disc reads as a record and not a
+   black circle. */
+.vinyl {
+  background:
+    repeating-radial-gradient(circle at 50% 50%, #0d0d0e 0 1.4px, #18181a 1.6px 2.6px),
+    #111;
+  box-shadow: 0 0 0 1px #000 inset;
+}
+.vinyl.is-spinning {
+  animation: vinyl-spin 1.8s linear infinite; /* 33 1/3 rpm */
+}
+@keyframes vinyl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* The reflection on the grooves stays put while the disc turns under it. */
+.vinyl-sheen {
+  background:
+    conic-gradient(
+      from 210deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.13) 22deg,
+      transparent 52deg,
+      transparent 180deg,
+      rgba(255, 255, 255, 0.09) 205deg,
+      transparent 236deg
+    );
+  mask-image: radial-gradient(circle, transparent 30%, #000 32%);
+  -webkit-mask-image: radial-gradient(circle, transparent 30%, #000 32%);
+}
+
+.tonearm {
+  transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
+  filter: drop-shadow(6px 10px 8px rgba(0, 0, 0, 0.6));
+}
+
+/* ============================================================
+   The crate
+   ============================================================ */
+.sleeve {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sleeve:hover { transform: translateY(-6px); }
+
+/* The record inside, sliding up out of its sleeve when chosen. */
+.sleeve-disc {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, #c9a664 0 11%, #1a1a1c 11.5% 13%, transparent 13.5%),
+    /* A sheen across the top edge, so a dark disc reads against a dark page. */
+    linear-gradient(170deg, rgba(255, 255, 255, 0.16), transparent 38%),
+    repeating-radial-gradient(circle, #141416 0 1.2px, #232326 1.4px 2.3px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 -6px 18px rgba(0, 0, 0, 0.6);
+  transform: translateY(6%);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sleeve:hover .sleeve-disc { transform: translateY(-20%); }
+/* Far enough out that the label clears the sleeve and it reads as a record. */
+.sleeve.is-out .sleeve-disc { transform: translateY(-50%); }
+.sleeve.is-out > span:nth-of-type(2) {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 16px 34px rgba(0, 0, 0, 0.75);
+}
+
+/* Three bars bouncing beside the track that is playing. */
+.eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.eq i {
+  display: block;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 1px;
+  animation: eq-bounce 0.9s ease-in-out infinite;
+}
+.eq i:nth-child(2) { animation-delay: 0.22s; }
+.eq i:nth-child(3) { animation-delay: 0.44s; }
+@keyframes eq-bounce {
+  0%, 100% { height: 3px; }
+  50%      { height: 12px; }
+}
+
+/* ============================================================
+   The screening room
+   ============================================================ */
+/* The scalloped valance across the top of the proscenium. */
+.cinema-pelmet {
+  position: absolute;
+  inset: -1.6rem -1.2rem auto;
+  z-index: 3;
+  height: 2.6rem;
+  border-radius: 4px 4px 0 0;
+  background:
+    radial-gradient(circle at 50% 0, transparent 62%, #5a0f14 64%) 0 100% / 2.4rem 1.2rem repeat-x,
+    linear-gradient(180deg, #8a1c22, #5a0f14);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Velvet: vertical folds in light and shadow. */
+.curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 51%;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(
+      90deg,
+      #4a0b10 0,
+      #8e1d24 5%,
+      #b42a31 7.5%,
+      #7a161c 10%,
+      #4a0b10 13%
+    );
+  box-shadow: inset 0 -30px 40px rgba(0, 0, 0, 0.55);
+  transition: transform 1.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.curtain-left  { left: 0;  transform-origin: left;  }
+.curtain-right { right: 0; transform-origin: right; }
+/* Parted, they gather at the edges rather than vanishing. */
+.curtain-left.is-open  { transform: translateX(-88%) scaleX(0.55); }
+.curtain-right.is-open { transform: translateX(88%) scaleX(0.55); }
+
+/* Gathered velvet hanging either side of the screen. */
+.drape {
+  position: absolute;
+  top: -1.6rem;
+  bottom: -0.6rem;
+  z-index: 2;
+  display: none;
+  width: 3rem;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 40%, transparent 60%, rgba(0, 0, 0, 0.55)),
+    repeating-linear-gradient(90deg, #4a0b10 0, #a3252c 18%, #6e141a 34%, #4a0b10 50%);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 768px) { .drape { display: block; } }
+.drape-left  { left: -3.6rem;  border-radius: 0 0 0 40% / 0 0 0 6%; }
+.drape-right { right: -3.6rem; border-radius: 0 0 40% 0 / 0 0 6% 0; }
+
+/* Tickets for the programme. */
+.ticket {
+  position: relative;
+  overflow: hidden;
+  min-height: 9rem;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f3e8d2, #e6d6b6);
+  box-shadow: 0 16px 34px -12px rgba(0, 0, 0, 0.85);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Punched notches on the perforation, top and bottom. */
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  left: 6rem;
+  width: 1rem;
+  height: 1rem;
+  margin-left: -0.5rem;
+  border-radius: 999px;
+  background: var(--ink);
+}
+@media (min-width: 640px) {
+  .ticket::before, .ticket::after { left: 7rem; }
+}
+.ticket::before { top: -0.5rem; }
+.ticket::after  { bottom: -0.5rem; }
+.ticket:hover { transform: translateY(-4px) rotate(-0.6deg); }
+.ticket.is-on {
+  box-shadow:
+    0 0 0 2px var(--gold),
+    0 22px 44px -12px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(201, 166, 100, 0.2);
 }
 
 /* A soft gold sweep that crosses a card on hover. */
@@ -347,12 +606,17 @@ button:disabled {
   .nudge,
   .dot,
   .lit-star,
-  .lit-star-new {
+  .lit-star-new,
+  .vinyl.is-spinning,
+  .eq i {
     animation: none !important;
   }
+  .eq i { height: 8px; }
   /* Reveal-on-scroll content must be visible, not merely un-animated. */
   [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .words > span { opacity: 1 !important; transform: none !important; filter: none !important; }
   .spine { transform: scaleX(1) !important; }
   .drawer { transition: none !important; }
+  .curtain { transition: none !important; }
   .dot { opacity: 1 !important; }
 }
