@@ -12,7 +12,7 @@ export function Timeline() {
     <section id="journey" className="section border-t border-[var(--rule)]">
       <div className="section-inner">
         <div className="max-w-2xl" data-reveal>
-          <p className="eyebrow rule-lead">05 / A journey</p>
+          <p className="eyebrow rule-lead">A journey</p>
           <h2 className="display section-title">THE JOURNEY</h2>
           <p className="display mt-2 text-2xl italic text-[var(--paper-70)]">
             Patna to Dil Bechara, in eleven steps.

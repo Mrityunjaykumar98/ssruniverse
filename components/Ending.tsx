@@ -92,12 +92,8 @@ export function Ending() {
       />
 
       <div className="relative mx-auto max-w-4xl text-center">
-        <p className="eyebrow" data-reveal>
-          07 / Keep looking up
-        </p>
-
         <h2
-          className="display mt-8 text-[clamp(3.6rem,11vw,9.5rem)] font-light leading-[.88] tracking-[-.02em]"
+          className="display text-[clamp(3.6rem,11vw,9.5rem)] font-light leading-[.88] tracking-[-.02em]"
           data-reveal
           style={{ "--delay": "0.1s" } as React.CSSProperties}
         >

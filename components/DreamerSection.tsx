@@ -37,7 +37,7 @@ export function DreamerSection() {
 
       <div className="section-inner relative">
         <div data-reveal>
-          <p className="eyebrow rule-lead">04 / Beyond the frame</p>
+          <p className="eyebrow rule-lead">Beyond the frame</p>
           <h2 className="display section-title">THE DREAMER</h2>
           <p className="display mt-2 max-w-xl text-2xl italic leading-snug text-[var(--paper-70)]">
             He wasn&rsquo;t just an actor. He was a curious soul.
