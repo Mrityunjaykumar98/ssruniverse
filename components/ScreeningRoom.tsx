@@ -149,7 +149,7 @@ export function ScreeningRoom() {
                     />
                   </span>
                   <span className="min-w-0 flex-1 p-4 sm:p-5">
-                    <span className="flex items-center justify-between gap-3 text-[9px] font-bold tracking-[.2em] text-[#8c7552]">
+                    <span className="flex items-center justify-between gap-3 text-[10px] font-bold tracking-[.2em] text-[#6e5a3e]">
                       <span>ADMIT ONE &middot; {s.kind.toUpperCase()}</span>
                       <span>{s.year}</span>
                     </span>
@@ -157,7 +157,7 @@ export function ScreeningRoom() {
                       {s.title}
                     </span>
                     <span className="mt-1.5 block text-xs leading-snug text-[#5d4f3c]">{s.note}</span>
-                    <span className="mt-3 block text-[10px] tracking-[.12em] text-[#8c7552]">
+                    <span className="mt-3 block text-[10px] tracking-[.12em] text-[#6e5a3e]">
                       {s.runtime} &middot; {s.source.toUpperCase()}
                     </span>
                   </span>

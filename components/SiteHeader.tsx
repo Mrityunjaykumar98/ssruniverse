@@ -68,7 +68,7 @@ export function SiteHeader() {
             </span>
             SSR UNIVERSE
           </p>
-          <p className="mt-1 hidden text-[9px] tracking-[.08em] text-[var(--paper-40)] sm:block">
+          <p className="mt-1 hidden text-[10px] tracking-[.08em] text-[var(--paper-40)] sm:block">
             A place to remember. A universe to explore.
           </p>
         </a>

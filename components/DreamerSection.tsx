@@ -127,7 +127,7 @@ export function DreamerSection() {
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-3">
-                      <span className="text-[10px] tracking-[.16em] text-[var(--gold)]/60">
+                      <span className="text-[10px] tracking-[.16em] text-[var(--gold)]/80">
                         {dream.number}
                       </span>
                       <span

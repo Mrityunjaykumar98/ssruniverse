@@ -205,7 +205,7 @@ export function MemoriesSection() {
                 }`}
               >
                 {label}
-                <span className="ml-2 opacity-50">{count}</span>
+                <span className="ml-2 [font-variant-numeric:lining-nums_tabular-nums]">{count}</span>
               </button>
             );
           })}
@@ -246,7 +246,7 @@ export function MemoriesSection() {
                   >
                     <Thumb moment={moment} />
                     {playableId(moment) && (
-                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,16,12,.72)] px-2.5 py-1 text-[9px] font-bold tracking-[.16em] text-[#f3e7cf] backdrop-blur-sm">
+                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,16,12,.72)] px-2.5 py-1 text-[10px] font-bold tracking-[.16em] text-[#f3e7cf] backdrop-blur-sm">
                         <PlayGlyph className="h-2.5 w-2.5" />
                         {video ? "FILM" : "FOOTAGE"}
                       </span>
