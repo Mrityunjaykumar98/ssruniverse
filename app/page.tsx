@@ -6,7 +6,6 @@ import { InHisWords } from "@/components/InHisWords";
 import { MemoriesSection } from "@/components/MemoriesSection";
 import { MovieCarousel } from "@/components/MovieCarousel";
 import { MusicSection } from "@/components/MusicSection";
-import { RandomMemory } from "@/components/RandomMemory";
 import { ScreeningRoom } from "@/components/ScreeningRoom";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Starfield } from "@/components/Starfield";
@@ -53,7 +52,6 @@ export default function Home() {
           tone="cool"
         />
         <Timeline />
-        <RandomMemory />
         <Ending />
       </main>
       <Footer />
