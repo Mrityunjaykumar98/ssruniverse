@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter, Caveat } from "next/font/google";
+import { siteDescription, siteName, siteTitle, siteUrl } from "@/data/site";
 import "./globals.css";
 
 /* Display serif for the wordmark and section titles. */
@@ -26,11 +27,31 @@ const script = Caveat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   // The wordmark is "SSR Universe", but the document title keeps his full
   // name so the site is findable by people searching for him.
-  title: "SSR Universe — A Sushant Singh Rajput Tribute",
-  description:
-    "An independent, fan-made tribute to Sushant Singh Rajput — his films, his music, and the curiosity he left behind.",
+  title: siteTitle,
+  description: siteDescription,
+  alternates: { canonical: "/" },
+  // The preview image itself comes from app/opengraph-image.tsx, which Next
+  // wires into both og:image and twitter:image.
+  openGraph: {
+    type: "website",
+    siteName,
+    title: siteTitle,
+    description: siteDescription,
+    url: "/",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#04060c",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
