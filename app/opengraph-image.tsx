@@ -14,15 +14,14 @@ export const alt = "Sushant Singh Rajput, 21 January 1986 – 14 June 2020. SSR 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const root = process.cwd();
-const asset = (...p: string[]) => readFile(join(root, ...p));
-
 export default async function Image() {
+  // Each path is spelled out in full: a computed path makes the bundler
+  // trace the whole project into the server output.
   const [light, script, sans, portrait] = await Promise.all([
-    asset("assets/fonts/Cormorant-Light.ttf"),
-    asset("assets/fonts/Caveat-Medium.ttf"),
-    asset("assets/fonts/Inter-Medium.ttf"),
-    asset("public/images/hero-portrait.jpg"),
+    readFile(join(process.cwd(), "assets", "fonts", "Cormorant-Light.ttf")),
+    readFile(join(process.cwd(), "assets", "fonts", "Caveat-Medium.ttf")),
+    readFile(join(process.cwd(), "assets", "fonts", "Inter-Medium.ttf")),
+    readFile(join(process.cwd(), "public", "images", "hero-portrait.jpg")),
   ]);
   const photo = credits["hero-portrait"];
 
