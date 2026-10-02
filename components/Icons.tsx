@@ -59,22 +59,33 @@ export const icons = {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   ),
-  youtube: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <rect x="2.5" y="6" width="19" height="12" rx="3.5" />
-      <path d="m10.5 9.5 4.5 2.5-4.5 2.5V9.5Z" />
-    </svg>
-  ),
-  instagram: (p: IconProps) => (
-    <svg {...base} {...p} aria-hidden>
-      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
-      <circle cx="12" cy="12" r="3.8" />
-      <path d="M16.9 7.1h.01" />
-    </svg>
-  ),
+  /* The X mark: one bar drawn as an outline, the other as two strokes. */
   x: (p: IconProps) => (
     <svg {...base} {...p} aria-hidden>
-      <path d="M4 4l16 16M20 4L4 20" />
+      <path d="M4 4h4.5L20 20h-4.5L4 4Z" />
+      <path d="M19.5 4l-6.4 7.2M4.5 20l6.4-7.2" />
+    </svg>
+  ),
+  whatsapp: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <path d="M4 20l1.2-3.6A8.3 8.3 0 1 1 8 19l-4 1Z" />
+      <path d="M9.2 8.3c-.4 2.8 3.1 6.5 6.4 6.4l.9-1.5-2-1-.9.8a4.6 4.6 0 0 1-2-2l.8-.9-1-2-1.5.7-.7-.5Z" />
+    </svg>
+  ),
+  facebook: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <path d="M14.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.6-1.5h1.5V4.4a20 20 0 0 0-2.2-.1c-2.2 0-3.9 1.4-3.9 3.9v2.3H9v3h2.5V21" />
+    </svg>
+  ),
+  share: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <path d="M12 15V3.5M8 7.5l4-4 4 4" />
+      <path d="M6 11H5v8.5h14V11h-1" />
+    </svg>
+  ),
+  check: (p: IconProps) => (
+    <svg {...base} {...p} aria-hidden>
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
   ),
   link: (p: IconProps) => (
