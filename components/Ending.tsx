@@ -66,7 +66,7 @@ export function Ending() {
   return (
     <section
       id="ending"
-      className="relative flex min-h-screen items-center overflow-hidden px-5 py-28 md:px-8"
+      className="relative flex min-h-[70svh] items-center overflow-hidden px-5 py-20 md:px-8"
     >
       {/* The visitor's own stars, kept in the sky they lit them in. */}
       <div aria-hidden className="absolute inset-0">

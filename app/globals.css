@@ -98,7 +98,10 @@ body {
 /* ============================================================
    Section shell
    ============================================================ */
-.section { padding: 5.5rem var(--gutter); position: relative; }
+/* Each boundary between sections is this padding twice over, so keep it
+   modest: at 8rem a side the page opened 256px of empty sky between
+   every pair of sections. */
+.section { padding: 4.5rem var(--gutter); position: relative; }
 .section-inner { max-width: var(--shell); margin: auto; }
 .section-title { margin: 0.65rem 0 0.5rem; font-size: var(--step-title); line-height: 0.9; }
 .section-copy {
@@ -595,7 +598,7 @@ button:disabled {
 .rail::-webkit-scrollbar { display: none; }
 
 @media (min-width: 768px) {
-  .section { padding: 8rem 2rem; }
+  .section { padding: 5.5rem 2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
