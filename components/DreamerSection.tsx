@@ -143,8 +143,8 @@ export function DreamerSection() {
                     </span>
                   </span>
 
-                  <span className="hidden shrink-0 items-center gap-2 text-[10px] tracking-[.14em] text-[var(--paper-40)] sm:flex">
-                    {open ? "CLOSE" : "WATCH"}
+                  <span className="flex shrink-0 items-center gap-2 text-[10px] tracking-[.14em] text-[var(--paper-40)]">
+                    <span className="hidden sm:inline">{open ? "CLOSE" : "WATCH"}</span>
                     <span
                       className={`grid h-8 w-8 place-items-center rounded-full border border-[var(--rule-strong)] transition duration-500 ${
                         open ? "rotate-45 border-[var(--gold)] text-[var(--gold)]" : "group-hover:border-[var(--gold)] group-hover:text-[var(--gold)]"

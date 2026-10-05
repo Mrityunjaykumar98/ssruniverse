@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "@/components/Icons";
 import { navLinks } from "@/data/nav";
@@ -11,6 +11,31 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   /* 0–1 through the page, drawn as a hairline under the bar. */
   const [progress, setProgress] = useState(0);
+  /* Where a link in the phone drawer asked to go, held until it has shut. */
+  const pendingJump = useRef<string | null>(null);
+
+  /* Closing the drawer cancels any smooth scroll already under way, so a
+     plain anchor in it changed the address and never moved the page. Its
+     links close the drawer first and make the jump once it has gone. */
+  const jumpFromDrawer = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    // Leave modified clicks (new tab, new window) to the browser.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    pendingJump.current = id;
+    setMenuOpen(false);
+  };
+
+  const finishJump = () => {
+    const id = pendingJump.current;
+    pendingJump.current = null;
+    const target = id && document.getElementById(id);
+    if (!target) return;
+    // A real history entry, as the anchor would have made, so Back returns.
+    history.pushState(history.state, "", `#${id}`);
+    // No behaviour given, so the CSS decides: smooth, or instant under
+    // reduced motion.
+    target.scrollIntoView();
+  };
 
   /* Highlight the link whose section currently owns the upper third of the
      viewport, and swap the bar to its solid state once the hero is behind us. */
@@ -85,7 +110,7 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex max-w-[var(--shell)] items-center justify-between gap-6 px-5 py-4 md:px-8">
-        <a href="#top" className="shrink-0">
+        <a href="#top" className="-my-3 shrink-0 py-3">
           <p className="text-[11px] font-bold tracking-[.2em]">
             <span className="mr-2 text-[var(--gold)]" aria-hidden>
               ✦
@@ -125,7 +150,7 @@ export function SiteHeader() {
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          className="text-lg text-[var(--gold)] lg:hidden"
+          className="-mr-2.5 grid h-11 w-11 place-items-center text-lg text-[var(--gold)] lg:hidden"
         >
           <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
           <Icon name={menuOpen ? "close" : "menu"} className="h-6 w-6" />
@@ -140,7 +165,7 @@ export function SiteHeader() {
         style={{ transform: `scaleX(${progress})` }}
       />
 
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={finishJump}>
         {menuOpen && (
           <motion.nav
             id="mobile-menu"
@@ -155,7 +180,7 @@ export function SiteHeader() {
                 <li key={id}>
                   <a
                     href={`#${id}`}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(e) => jumpFromDrawer(e, id)}
                     className="block border-b border-[var(--rule)] py-3.5 text-[11px] font-semibold tracking-[.18em] text-[var(--paper-70)] last:border-b-0"
                   >
                     {label.toUpperCase()}

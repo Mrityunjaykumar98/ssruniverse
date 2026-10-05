@@ -15,7 +15,7 @@ export function MovieCarousel() {
             <h2 className="display section-title">THE ACTOR</h2>
           </div>
           <p className="display max-w-md pb-3 text-xl italic leading-snug text-[var(--paper-70)]">
-            Eleven films in seven years, on a reel you can turn.
+            Eleven films in seven years<span className="hidden md:inline">, on a reel you can turn</span>.
           </p>
         </div>
 

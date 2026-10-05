@@ -56,7 +56,7 @@ export function Footer() {
                   href={`https://x.com/hashtag/${tag}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--gold)]/80 transition hover:text-[var(--gold-bright)]"
+                  className="-my-2 py-2 text-[var(--gold)]/80 transition hover:text-[var(--gold-bright)]"
                 >
                   #{tag}
                 </a>
@@ -67,7 +67,7 @@ export function Footer() {
 
         {/* Attribution. These lines are licence terms, not decoration. */}
         <details className="mt-14 border-t border-[var(--rule)] pt-6">
-          <summary className="cursor-pointer text-[10px] font-bold tracking-[.18em] text-[var(--paper-55)] hover:text-[var(--gold)]">
+          <summary className="-my-3 cursor-pointer py-3 text-[10px] font-bold tracking-[.18em] text-[var(--paper-55)] hover:text-[var(--gold)]">
             IMAGE CREDITS &amp; SOURCES
           </summary>
           <ul className="mt-4 grid gap-1.5 text-[10px] leading-relaxed text-[var(--paper-40)] sm:grid-cols-2">
